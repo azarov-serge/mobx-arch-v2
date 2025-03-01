@@ -1,3 +1,12 @@
+# Project info
+
+- `/src/app/router` - Routing app
+- `/src/app/stores` - Stores app
+- `/src/pages` - Pages app
+- `/src/share` - Contains `hooks`, `ui-kit`, `utils`
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
