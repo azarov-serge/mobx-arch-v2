@@ -19,7 +19,6 @@ import { cocktailHelper } from '../../helpers/cocktail-helper';
 export class CategoryService extends FetchResource<CategoryServiceType> {
   constructor() {
     super();
-
     makeObservable(this);
   }
 
