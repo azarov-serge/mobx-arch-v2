@@ -2,7 +2,7 @@ import qs from 'query-string';
 import { ResourceInterface, ResourceMethod } from './types';
 
 export class Resource implements ResourceInterface {
-  private readonly id: string = '';
+  public readonly id: string = '';
   public readonly url: string = '';
   public readonly method: ResourceMethod = 'GET';
 
@@ -20,7 +20,7 @@ export class Resource implements ResourceInterface {
   }
 
   public copyWith = (data: Partial<Resource>): Resource => {
-    return new Resource(data);
+    return new Resource({ ...this, ...data });
   };
 
   private createUrl(data: string): string {

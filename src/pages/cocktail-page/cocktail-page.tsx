@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { Spinner } from '@admiral-ds/react-ui';
 
 import { Styled } from './styled';
@@ -20,7 +20,7 @@ export const CocktailPage: React.FC = observer(() => {
     if (!isFetching && !isFetched) {
       getData(id);
     }
-  }, [id, data]);
+  }, [id, isFetching, isFetched]);
 
   if (isFetching) {
     return (

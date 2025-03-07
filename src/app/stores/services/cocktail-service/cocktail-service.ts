@@ -1,10 +1,5 @@
 import { makeObservable, observable } from 'mobx';
-import {
-  FetchResource,
-  PaginationResource,
-  Resource,
-  ResourceStatus,
-} from '../../core';
+import { FetchResource, Resource, ResourceStatus } from '../../core';
 import { BASE_URL } from '../../endpoints';
 
 import { CocktailResponse, CocktailServiceType } from './types';
