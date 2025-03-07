@@ -1,125 +1,88 @@
-import { makeAutoObservable } from 'mobx';
-import qs from 'query-string';
+import { ResourceInterface, ResourceParams } from './types';
+import { AbstractResource } from './abstract-resource';
 
-import { ResourceInterface, ResourceMethod } from './types';
+type PageResourceParams = Record<number, ResourceParams>;
 
-export class PaginationResource implements ResourceInterface {
-  private readonly id: string = '';
-  public readonly method: ResourceMethod = 'GET';
-  public limit: number = 10;
+type PaginationResourceInterface = ResourceInterface &
+  ResourceInterface & {
+    id: number | string;
+    page?: number;
+    pageParams: PageResourceParams;
+  };
+
+export class PaginationResource extends AbstractResource {
   public page: number = 1;
+  public readonly pageParams: PageResourceParams = {};
 
-  private cursors: Record<string, string> = {};
-  private _url: string = '';
+  constructor(data?: Partial<PaginationResourceInterface>) {
+    super(data);
 
-  constructor(
-    data?: Partial<
-      ResourceInterface & {
-        id: number | string;
-        limit?: number;
-      }
-    >
-  ) {
-    makeAutoObservable(this);
-    this.id = `${data?.id ?? this.id}`;
-    this.method = data?.method ?? this.method;
-    this.limit = data?.limit ?? this.limit;
+    this.page = data?.page ?? this.page;
 
-    this._url = data?.url ? this.createUrl(this.page, data?.url) : this._url;
-
-    this.copyWith = this.copyWith.bind(this);
-    this.nextPage = this.nextPage.bind(this);
-    this.setPage = this.setPage.bind(this);
-    this.setParams = this.setParams.bind(this);
+    this.pageParams = {
+      ...this.pageParams,
+      ...(data?.pageParams ?? {}),
+    };
   }
 
-  get url(): string {
-    return this.createUrl(this.page);
+  get requestUrl(): string {
+    const params = this.pageParams[this.page] ?? {};
+
+    return this.createUrl({ ...this.params, ...params });
   }
 
-  get urls(): string[] {
+  get requestUrls(): string[] {
     return Array.from({ length: this.page }).map((_, index) => {
-      return this.createUrl(index + 1);
+      const page = index + 1;
+      const params = this.pageParams[page] ?? {};
+
+      return this.createUrl({ ...this.params, ...params });
     });
   }
 
-  /** Уникальный ключ ресурса */
+  /** Уникальные ключи ресурса */
   get key(): string {
-    return this.createKey();
+    return this.createKey(this.requestUrl);
   }
 
   /** Уникальные ключи ресурса */
   get keys(): string[] {
-    return this.urls.map((url, index) => this.createKey(index + 1, url));
+    return this.requestUrls.map((url) => this.createKey(url));
   }
 
-  public copyWith(data: Partial<PaginationResource>): PaginationResource {
-    return new PaginationResource(data);
-  }
+  public copyWith = (
+    data?: PaginationResourceInterface
+  ): PaginationResource => {
+    return new PaginationResource({ ...this, ...(data ?? {}) });
+  };
 
-  public nextPage(cursor: number | string): boolean {
-    if (
-      Object.values(this.cursors).includes(`${cursor}`) ||
-      !cursor ||
-      cursor === -1
-    ) {
+  public nextPage = (params: ResourceParams): boolean => {
+    const currentParams = PaginationResource.createParams({
+      ...this.params,
+      ...(this.pageParams[this.page] ?? {}),
+    });
+
+    const newParams = PaginationResource.createParams(params);
+
+    if (currentParams === newParams) {
       return false;
     }
 
     this.page = this.page + 1;
-    this.cursors[this.page] = `${cursor}`;
+
+    this.pageParams[this.page] = params;
 
     return true;
-  }
-
-  public setPage(page: number): void {
-    this.page = page;
-  }
-
-  public setParams(params: string): void {
-    this._url = this.createUrl(this.page, `${this.url}${params}`);
-  }
-
-  private createUrl(page: number, fullUrl?: string): string {
-    const { url, query } = qs.parseUrl(fullUrl ?? this._url);
-
-    const params = `${PaginationResource.createParams(query)}&${
-      PaginationResource.params.limit
-    }=${this.limit}`;
-
-    const cursor = this.cursors[page]
-      ? `${PaginationResource.params.cursor}=${this.cursors[page]}`
-      : '';
-
-    return `${url}?${params}${cursor ? `&${cursor}` : cursor}`;
-  }
-
-  private createKey(page?: number, url?: string): string {
-    const id = this.id ? `/${this.id}` : '';
-
-    return `[${this.method}]:${this.createUrl(
-      page ?? this.page,
-      url ?? this._url
-    )}${id}`;
-  }
-
-  static params: Record<string, string> = {
-    cursor: 'last-id',
-    limit: 'limit',
   };
 
-  static createParams(query: Record<string, unknown>): string {
-    const systemParams = Object.values(PaginationResource.params);
-
-    return Object.keys(query)
-      .filter((key) => !systemParams.includes(key))
-      .sort((a, b) => a.localeCompare(b))
-      .map(
-        (param) =>
-          `${param}=${encodeURI(query[param] ? `${query[param]}` : '')}`
-      )
-      .join('&');
-  }
+  public getPaginationParamsValue = <T>(
+    key: string,
+    defaultValue?: T,
+    page?: number
+  ): T => {
+    const params = this.pageParams[page ?? this.page] ?? {};
+    return (params[key] ?? defaultValue) as T;
+  };
 
   static isInstance(value: unknown): value is PaginationResource {
     return value instanceof PaginationResource;

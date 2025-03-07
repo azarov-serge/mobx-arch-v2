@@ -1,4 +1,4 @@
-import { makeObservable, observable } from 'mobx';
+import { makeObservable, observable, toJS } from 'mobx';
 import {
   FetchResource,
   PaginationResource,
@@ -16,23 +16,38 @@ import {
 
 import { cocktailHelper } from '../../helpers/cocktail-helper';
 
+const DEFAULT_PAGE_LIMIT = 10;
 export class CategoryService extends FetchResource<CategoryServiceType> {
   constructor() {
     super();
     makeObservable(this);
   }
 
+  categoriesResource = new Resource({
+    url: `${BASE_URL}/list.php?c=list`,
+  });
+
   @observable.deep
-  resources = {
-    categories: new Resource({
-      url: `${BASE_URL}/list.php?c=list`,
-    }),
-    cocktails: {} as Record<string, PaginationResource>,
-  };
+  cocktailsResources = {} as Record<string, PaginationResource>;
+
+  public getCocktailsResources(category: string) {
+    const resource =
+      this.cocktailsResources[category] ??
+      new PaginationResource({
+        url: `${BASE_URL}/filter.php`,
+        params: { c: category, limit: DEFAULT_PAGE_LIMIT },
+      });
+
+    if (!this.cocktailsResources[category] && category) {
+      this.cocktailsResources[category] = resource;
+    }
+
+    return resource;
+  }
 
   public getCategories(): Promise<ResourceStatus<Categories>> {
     return this.rest.request<Categories>({
-      resource: this.resources.categories,
+      resource: this.categoriesResource,
       adaptResponse: (response) => {
         return (response as { drinks: CategoryResponse[] }).drinks.map(
           (item) => item.strCategory
@@ -44,15 +59,7 @@ export class CategoryService extends FetchResource<CategoryServiceType> {
   public getCocktails(
     category: string
   ): Promise<ResourceStatus<CategoryCocktails>> {
-    let resource = this.resources.cocktails[category];
-
-    if (!resource) {
-      this.resources.cocktails[category] = new PaginationResource({
-        url: `${BASE_URL}/filter.php?c=${category}`,
-      });
-    }
-
-    resource = this.resources.cocktails[category];
+    const resource = this.getCocktailsResources(category);
 
     return this.rest.request<CategoryCocktails>({
       resource,

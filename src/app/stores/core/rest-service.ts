@@ -1,12 +1,7 @@
 import { observable, makeAutoObservable } from 'mobx';
 
 import { RequestArgs, Statuses } from './types';
-import {
-  Resource,
-  PaginationResource,
-  ResourceError,
-  ResourceStatus,
-} from './resources';
+import { Resource, ResourceError, ResourceStatus } from './resources';
 // TODO: Add alias
 import { delay, isAxiosResponse } from '../../../share';
 import axios, { AxiosResponse } from 'axios';
@@ -121,7 +116,7 @@ export class RestService<T> {
       const request: Promise<R | AxiosResponse<R>> = fetch
         ? fetch(args)
         : axiosInstance({
-            url: resource.url,
+            url: resource.requestUrl,
             method: resource.method,
             headers,
             data,
