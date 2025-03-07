@@ -16,12 +16,10 @@ export class CocktailHelper {
   fetchCocktails = async ({
     resource,
   }: RequestArgs<CategoryCocktailsResponse>): Promise<CategoryCocktails> => {
-    const { url, query } = qs.parseUrl(resource.url);
-    const category = query['c'] ? `${query['c']}` : '';
     const paginationResource = resource as PaginationResource;
-    const limit = paginationResource.limit;
-
-    delete query['limit'];
+    const url = paginationResource.url;
+    const category = resource.getParamsValue<string>('c', '');
+    const limit = paginationResource.getParamsValue<number>('limit');
 
     let cache = this.cache[category] as CategoryCocktails;
 
@@ -29,10 +27,7 @@ export class CocktailHelper {
       const response = await axiosInstance<{
         drinks: CategoryCocktailResponse[];
       }>({
-        url: `${url}?${Object.keys(query).reduce((acc, key) => {
-          acc = `${acc}&${key}=${encodeURI(query[key] ? `${query[key]}` : '')}`;
-          return acc;
-        }, '')}`,
+        url: `${url}?${qs.stringify({ c: category })}`,
         method: resource.method,
       });
 
@@ -49,7 +44,11 @@ export class CocktailHelper {
 
     cache = this.cache[category] as CategoryCocktails;
 
-    const prevLastId = query['last-id'] ? `${query['last-id']}` : '';
+    const prevLastId = paginationResource.getPaginationParamsValue<string>(
+      'last-id',
+      ''
+    );
+
     const prevLastIndex = prevLastId
       ? this.findIndex(cache.data, prevLastId)
       : 0;

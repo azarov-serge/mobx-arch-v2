@@ -20,7 +20,7 @@ export const Cocktails: React.FC = observer(() => {
       return;
     }
 
-    getData(category);
+    getData();
   }, [category]);
 
   if (!category) {
@@ -37,8 +37,8 @@ export const Cocktails: React.FC = observer(() => {
     }
 
     if (!isFetching && rowsAmount < rowsCount) {
-      if (nextPage(category, `${data?.lastId ?? ''}`)) {
-        getData(category);
+      if (nextPage({ 'last-id': data?.lastId ?? '' })) {
+        getData();
       }
     }
   };

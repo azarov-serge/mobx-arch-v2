@@ -1,15 +1,24 @@
 import { categoryView } from '../../../app/stores';
 
 export const useGetCategories = () => {
-  const data = categoryView.data.categories;
+  const service = categoryView.service;
+  const resource = service.categoriesResource;
+
+  const status = categoryView.getStatus<
+    Awaited<ReturnType<typeof service.getCategories>>
+  >(resource.key);
+
+  const { clearError, reset } = categoryView.createResourceHelpers(
+    resource.key
+  );
 
   return {
-    isFetching: data.isFetching,
-    isFetched: data.isFetched,
+    isFetching: status.isFetching,
+    isFetched: status.isFetched,
+    data: status.response,
+    error: status.error,
     getData: categoryView.getCategories,
-    clearError: categoryView.clearGetCategoriesError,
-    reset: categoryView.resetGetCategories,
-    data: data.response,
-    error: data.error,
+    clearError,
+    reset,
   };
 };

@@ -1,3 +1,4 @@
+import { PaginationResponse } from '../../core';
 import { CategoryCocktail } from './models';
 
 export type CategoryCocktailInterface = {
@@ -22,10 +23,6 @@ export type CategoryCocktailsResponse = {
 
 export type Categories = string[];
 
-export type CategoryCocktails = Omit<CategoryCocktailsResponse, 'data'> & {
-  data: CategoryCocktail[];
-  page: number;
-  limit: number;
-};
+export type CategoryCocktails = PaginationResponse<CategoryCocktail>;
 
 export type CategoryServiceType = Categories | CategoryCocktail;

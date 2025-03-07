@@ -18,7 +18,7 @@ export const CocktailPage: React.FC = observer(() => {
     }
 
     if (!isFetching && !isFetched) {
-      getData(id);
+      getData();
     }
   }, [id, isFetching, isFetched]);
 
@@ -53,7 +53,7 @@ export const CocktailPage: React.FC = observer(() => {
             {data?.instructions}
           </p>
 
-          <p>
+          <div>
             <b>Ingredients: </b>
             {data?.ingredients.length ? (
               <ul>
@@ -64,7 +64,7 @@ export const CocktailPage: React.FC = observer(() => {
             ) : (
               '-'
             )}
-          </p>
+          </div>
         </Styled.Info>
       </Styled.Wrapper>
     </>

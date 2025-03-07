@@ -1,16 +1,14 @@
 import { action, makeObservable } from 'mobx';
 
-import { cocktailService } from '../../services';
-import { CocktailViewData } from './types';
+import { CocktailService, cocktailService } from '../../services';
+import { View } from '../../core/view-store';
 
-export class CocktailView {
-  private readonly cocktailService = cocktailService;
-
+export class CocktailView extends View<CocktailService> {
   constructor() {
+    super(cocktailService);
     makeObservable(this, {
       getCocktail: action.bound,
-      clearGetCocktailError: action.bound,
-      resetGetCocktail: action.bound,
+      resetAll: action.bound,
     });
   }
 
@@ -18,35 +16,11 @@ export class CocktailView {
   public async getCocktail(
     id: string
   ): Promise<ReturnType<typeof cocktailService.getCocktail>> {
-    return await this.cocktailService.getCocktail(id);
+    return await this.service.getCocktail(id);
   }
-
-  public clearGetCocktailError(id: string): void {
-    this.cocktailService.rest.clearError(
-      this.cocktailService.resources.cocktail(id).key
-    );
-  }
-
-  public resetGetCocktail(id: string): void {
-    this.cocktailService.rest.reset(
-      this.cocktailService.resources.cocktail(id).key
-    );
-  }
-  // #endregion Cocktail
 
   public resetAll() {
-    this.cocktailService.rest.resetAll();
-  }
-
-  get data(): CocktailViewData {
-    const {
-      rest: { getStatus },
-      resources,
-    } = this.cocktailService;
-
-    return {
-      cocktail: (id: string) => getStatus(resources.cocktail(id).key),
-    };
+    this.service.rest.resetAll();
   }
 }
 

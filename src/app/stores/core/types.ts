@@ -1,10 +1,4 @@
-import { url } from 'inspector';
-import {
-  PaginationResource,
-  Resource,
-  ResourceMethod,
-  ResourceStatus,
-} from './resources';
+import { PaginationResource, Resource, ResourceStatus } from './resources';
 
 export type Statuses<T> = {
   [key: string]: ResourceStatus<T>;
@@ -25,4 +19,9 @@ export type RequestArgs<T> = {
   mock?: { data: T; delay?: number };
   fetch?: (args: FetchArgs) => Promise<T>;
   adaptResponse?: (response: unknown) => T | null;
+};
+
+export type CreateResourceHelpersReturnData = {
+  clearError: () => void;
+  reset: () => void;
 };

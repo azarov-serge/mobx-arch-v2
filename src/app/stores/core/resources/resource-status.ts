@@ -13,8 +13,8 @@ export class ResourceStatus<T> {
     this.response = data?.response ?? this.response;
   }
 
-  copyWith = (
-    data: Partial<ResourceStatus<T>> | undefined
+  public copyWith = (
+    data?: Partial<ResourceStatus<T>> | undefined
   ): ResourceStatus<T> => {
     return new ResourceStatus({ ...this, ...data });
   };

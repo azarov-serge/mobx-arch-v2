@@ -1,4 +1,4 @@
-import { makeObservable, observable } from 'mobx';
+import { makeObservable } from 'mobx';
 import { FetchResource, Resource, ResourceStatus } from '../../core';
 import { BASE_URL } from '../../endpoints';
 
@@ -13,17 +13,17 @@ export class CocktailService extends FetchResource<CocktailServiceType> {
     makeObservable(this);
   }
 
-  @observable.deep
-  resources = {
-    cocktail: (id: string) =>
-      new Resource({
-        url: `${BASE_URL}/lookup.php?i=${id}`,
-      }),
-  };
+  cocktailResource = new Resource({
+    url: `${BASE_URL}/lookup.php`,
+  });
 
   public getCocktail(id: string): Promise<ResourceStatus<Cocktail>> {
+    const resource = this.cocktailResource.copyWith({
+      params: { i: id },
+    });
+
     return this.rest.request<Cocktail>({
-      resource: this.resources.cocktail(id),
+      resource,
       adaptResponse: (response) => {
         const cocktailResponse = (response as { drinks: CocktailResponse[] })
           .drinks[0];
