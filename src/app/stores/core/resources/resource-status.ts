@@ -16,6 +16,6 @@ export class ResourceStatus<T> {
   copyWith = (
     data: Partial<ResourceStatus<T>> | undefined
   ): ResourceStatus<T> => {
-    return new ResourceStatus(data);
+    return new ResourceStatus({ ...this, ...data });
   };
 }
