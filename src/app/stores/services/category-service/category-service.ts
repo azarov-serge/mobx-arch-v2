@@ -45,6 +45,13 @@ export class CategoryService extends FetchResource<CategoryServiceType> {
     return resource;
   }
 
+  public resetCocktailsResources(category: string) {
+    this.cocktailsResources[category] = new PaginationResource({
+      url: `${BASE_URL}/filter.php`,
+      params: { c: category, limit: DEFAULT_PAGE_LIMIT },
+    });
+  }
+
   public getCategories(): Promise<ResourceStatus<Categories>> {
     return this.rest.request<Categories>({
       resource: this.categoriesResource,

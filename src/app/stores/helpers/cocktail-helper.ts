@@ -39,7 +39,7 @@ export class CocktailHelper {
         limit,
       };
     } else {
-      await delay(300);
+      await delay(1_000);
     }
 
     cache = this.cache[category] as CategoryCocktails;

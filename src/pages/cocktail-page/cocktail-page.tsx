@@ -23,6 +23,7 @@ export const CocktailPage: React.FC = observer(() => {
   }, [id, isFetching, isFetched]);
 
   if (isFetching) {
+    return <p>Loading ....</p>;
     return (
       <Styled.Spinner>
         <Spinner />

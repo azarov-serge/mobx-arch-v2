@@ -24,4 +24,5 @@ export type RequestArgs<T> = {
 export type CreateResourceHelpersReturnData = {
   clearError: () => void;
   reset: () => void;
+  resetResource: () => void;
 };

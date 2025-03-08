@@ -10,9 +10,11 @@ export const useGetCocktails = (category: string) => {
     Awaited<ReturnType<typeof service.getCocktails>>
   >(resource.keys);
 
-  const { clearError, reset } = categoryView.createResourceHelpers(
-    resource.keys
-  );
+  const {
+    clearError,
+    reset,
+    resetResource: resetCocktailsResource,
+  } = categoryView.createResourceHelpers(resource.keys, resource.keyShort);
 
   const getData = React.useCallback(() => {
     if (!category) {
@@ -29,6 +31,15 @@ export const useGetCocktails = (category: string) => {
     return result;
   };
 
+  const resetResource = React.useCallback(() => {
+    if (!category) {
+      return;
+    }
+
+    categoryView.service.resetCocktailsResources(category);
+    resetCocktailsResource();
+  }, [category]);
+
   return {
     isFetching: status.isFetching,
     isFetched: status.isFetched,
@@ -38,5 +49,6 @@ export const useGetCocktails = (category: string) => {
     nextPage,
     clearError,
     reset,
+    resetResource,
   };
 };

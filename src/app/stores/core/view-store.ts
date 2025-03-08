@@ -1,3 +1,4 @@
+import { toJS } from 'mobx';
 import { FetchResource } from './fetch-resource';
 import { PaginationResponse, ResourceStatus } from './resources';
 import { CreateResourceHelpersReturnData } from './types';
@@ -34,10 +35,26 @@ export class View<S> {
         ];
 
         result = result.copyWith({
+          ...result,
           ...pageStatus,
+
           response: {
+            ...result.response,
             ...(pageStatus.response ?? {}),
             data,
+          },
+        });
+      } else {
+        result = result.copyWith({
+          ...result,
+          ...pageStatus,
+          response: {
+            count: 0,
+            lastId: 0,
+            page: 0,
+            limit: 0,
+            data: [],
+            ...(result.response ?? {}),
           },
         });
       }
@@ -49,11 +66,15 @@ export class View<S> {
   }
 
   public createResourceHelpers(
-    keys: string[] | string
+    keys: string[] | string,
+    key?: string
   ): CreateResourceHelpersReturnData {
     const clearError = () => this._service.rest.clearError(keys);
     const reset = () => this._service.rest.reset(keys);
+    const resetResource = key
+      ? () => this._service.rest.resetResource(key)
+      : () => {};
 
-    return { clearError, reset };
+    return { clearError, reset, resetResource };
   }
 }

@@ -1,8 +1,7 @@
-import { observable, makeAutoObservable } from 'mobx';
+import { observable, makeAutoObservable, action } from 'mobx';
 
 import { RequestArgs, Statuses } from './types';
 import { Resource, ResourceError, ResourceStatus } from './resources';
-// TODO: Add alias
 import { delay, isAxiosResponse } from '../../../share';
 import axios, { AxiosResponse } from 'axios';
 import { axiosInstance } from '../instances';
@@ -15,16 +14,9 @@ export class RestService<T> {
 
   constructor() {
     makeAutoObservable(this);
-
-    this.getStatus = this.getStatus.bind(this);
-    this.setStatus = this.setStatus.bind(this);
-    this.request = this.request.bind(this);
-    this.reset = this.reset.bind(this);
-    this.resetAll = this.resetAll.bind(this);
-    this.clearError = this.clearError.bind(this);
   }
 
-  public getStatus<T>(key: string): ResourceStatus<T> {
+  public getStatus = <T>(key: string): ResourceStatus<T> => {
     const status = this.statuses[key];
 
     if (!status) {
@@ -32,11 +24,11 @@ export class RestService<T> {
     }
 
     return status as unknown as ResourceStatus<T>;
-  }
+  };
 
-  public setStatus(key: string, status: ResourceStatus<T>): void {
+  public setStatus = action((key: string, status: ResourceStatus<T>): void => {
     this.statuses[key] = status;
-  }
+  });
 
   public reset(keys: string | string[]): void {
     if (Array.isArray(keys)) {
@@ -50,11 +42,21 @@ export class RestService<T> {
     delete this.statuses[keys];
   }
 
-  public resetAll(): void {
-    this.statuses = {};
-  }
+  public resetResource = (key: string): void => {
+    Object.keys(this.statuses).forEach((statusKey) => {
+      if (!statusKey.includes(key)) {
+        return;
+      }
 
-  public clearError(keys: string[] | string): void {
+      delete this.statuses[statusKey];
+    });
+  };
+
+  public resetAll = (): void => {
+    this.statuses = {};
+  };
+
+  public clearError = (keys: string[] | string): void => {
     if (Array.isArray(keys)) {
       keys.forEach((key) => {
         const status = this.statuses[key] ?? new ResourceStatus();
@@ -68,9 +70,11 @@ export class RestService<T> {
     const status = this.statuses[keys] ?? new ResourceStatus();
 
     this.statuses[keys] = status.copyWith({ error: null });
-  }
+  };
 
-  public async request<R>(args: RequestArgs<R>): Promise<ResourceStatus<R>> {
+  public request = async <R>(
+    args: RequestArgs<R>
+  ): Promise<ResourceStatus<R>> => {
     const { resource, data, fetch, adaptResponse, mock } = args;
 
     let params = '';
@@ -168,5 +172,5 @@ export class RestService<T> {
 
       return status;
     }
-  }
+  };
 }
