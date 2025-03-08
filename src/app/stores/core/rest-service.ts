@@ -158,7 +158,7 @@ export class RestService<T> {
         status = status.copyWith({
           error: new ResourceError({
             status: 500,
-            message: `${error}`,
+            message: JSON.stringify(error),
           }),
         });
       }
