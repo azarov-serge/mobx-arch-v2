@@ -20,12 +20,8 @@ export const Categories: React.FC = observer(() => {
     }
   }, []);
 
-  if (isFetching) {
-    return (
-      <Styled.Spinner>
-        <Spinner />
-      </Styled.Spinner>
-    );
+  if (isFetching || !data) {
+    return <p>Loading ....</p>;
   }
 
   if (!data) {

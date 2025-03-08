@@ -19,6 +19,11 @@ export abstract class AbstractResource implements ResourceInterface {
     return this.createKey();
   }
 
+  /**  Может использоваться для очистки состояния если, есть поиск типа search=*/
+  get keyShort(): string {
+    return `[${this.method}]:${this.url}`;
+  }
+
   /** URL для получения данных */
   get requestUrl(): string {
     return this.createUrl();
