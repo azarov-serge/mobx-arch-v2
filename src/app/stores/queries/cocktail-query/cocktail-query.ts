@@ -18,7 +18,8 @@ export class CocktailQuery extends Query<CocktailServiceType> {
     url: `${BASE_URL}/lookup.php`,
   });
 
-  public getCocktailData(resource: Resource): Helpers<Cocktail> {
+  public getCocktailData(id: string): Helpers<Cocktail> {
+    const resource = this.cocktailResource.copyWith({ params: { i: id } });
     const status = this.getStatus<ResourceStatus<Cocktail>>(resource.key);
 
     const getData = async (): Promise<ResourceStatus<Cocktail>> => {
