@@ -18,7 +18,7 @@ export class CocktailQuery extends Query<CocktailServiceType> {
     url: `${BASE_URL}/lookup.php`,
   });
 
-  public getCocktailHelpers(resource: Resource): Helpers<Cocktail> {
+  public getCocktailData(resource: Resource): Helpers<Cocktail> {
     const status = this.getStatus<ResourceStatus<Cocktail>>(resource.key);
 
     const getData = async (): Promise<ResourceStatus<Cocktail>> => {

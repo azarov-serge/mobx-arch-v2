@@ -32,29 +32,7 @@ export class CategoryQuery extends Query<CategoryServiceType> {
   @observable.deep
   cocktailsResources = {} as Record<string, PaginationResource>;
 
-  public getCocktailsResources(category: string): PaginationResource {
-    const resource =
-      this.cocktailsResources[category] ??
-      new PaginationResource({
-        url: `${BASE_URL}/filter.php`,
-        params: { c: category, limit: DEFAULT_PAGE_LIMIT },
-      });
-
-    if (!this.cocktailsResources[category] && category) {
-      this.cocktailsResources[category] = resource;
-    }
-
-    return resource;
-  }
-
-  public resetCocktailsResources(category: string): void {
-    this.cocktailsResources[category] = new PaginationResource({
-      url: `${BASE_URL}/filter.php`,
-      params: { c: category, limit: DEFAULT_PAGE_LIMIT },
-    });
-  }
-
-  public getCategoriesHelpers(resource: Resource): Helpers<Categories> {
+  public getCategoriesData(resource: Resource): Helpers<Categories> {
     const status = this.getStatus<ResourceStatus<Categories>>(resource.key);
 
     const getData = async (): Promise<ResourceStatus<Categories>> => {
@@ -76,7 +54,7 @@ export class CategoryQuery extends Query<CategoryServiceType> {
     return { ...status, ...helpers };
   }
 
-  public getCocktailsHelpers(
+  public getCocktailsData(
     category: string
   ): PaginationHelpers<CategoryCocktails, ResourceParams> {
     const resource = this.getCocktailsResources(category);
@@ -109,6 +87,21 @@ export class CategoryQuery extends Query<CategoryServiceType> {
     };
 
     return { ...helpers, ...status, nextPage };
+  }
+
+  private getCocktailsResources(category: string): PaginationResource {
+    const resource =
+      this.cocktailsResources[category] ??
+      new PaginationResource({
+        url: `${BASE_URL}/filter.php`,
+        params: { c: category, limit: DEFAULT_PAGE_LIMIT },
+      });
+
+    if (!this.cocktailsResources[category] && category) {
+      this.cocktailsResources[category] = resource;
+    }
+
+    return resource;
   }
 
   private updateCocktailsResources = action(
