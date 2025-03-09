@@ -1,7 +1,13 @@
+import React from 'react';
 import { categoryQuery } from '../../../app/stores';
 
 export const useGetCocktails = (category: string) => {
-  const helpers = categoryQuery.getCocktailsHelpers(category);
+  const { isFetching, isFetched, data, error, ...rest } =
+    categoryQuery.getCocktailsData(category);
 
-  return helpers;
+  const helpers = React.useMemo(() => {
+    return rest;
+  }, [category]);
+
+  return { isFetching, isFetched, data, error, ...helpers };
 };

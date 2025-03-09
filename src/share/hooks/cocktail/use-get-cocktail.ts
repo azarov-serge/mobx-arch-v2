@@ -1,3 +1,4 @@
+import React from 'react';
 import { cocktailQuery } from '../../../app/stores';
 
 export const useGetCocktail = (id: string) => {
@@ -5,7 +6,11 @@ export const useGetCocktail = (id: string) => {
     params: { i: id },
   });
 
-  const helpers = cocktailQuery.getCocktailHelpers(resource);
+  const { isFetching, isFetched, data, error, ...rest } =
+    cocktailQuery.getCocktailData(resource);
+  const helpers = React.useMemo(() => {
+    return rest;
+  }, []);
 
-  return helpers;
+  return { isFetching, isFetched, data, error, ...helpers };
 };

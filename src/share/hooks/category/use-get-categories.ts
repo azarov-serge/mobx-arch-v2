@@ -1,9 +1,15 @@
+import React from 'react';
 import { categoryQuery } from '../../../app/stores';
 
 export const useGetCategories = () => {
   const resource = categoryQuery.categoriesResource;
 
-  const helpers = categoryQuery.getCategoriesHelpers(resource);
+  const { isFetching, isFetched, data, error, ...rest } =
+    categoryQuery.getCategoriesData(resource);
 
-  return helpers;
+  const helpers = React.useMemo(() => {
+    return rest;
+  }, []);
+
+  return { isFetching, isFetched, data, error, ...helpers };
 };
