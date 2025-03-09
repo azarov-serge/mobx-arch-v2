@@ -73,7 +73,7 @@ export class CategoryQuery extends Query<CategoryServiceType> {
       resource.key
     );
 
-    return { status, ...helpers };
+    return { ...status, ...helpers };
   }
 
   public getCocktailsHelpers(
@@ -108,7 +108,7 @@ export class CategoryQuery extends Query<CategoryServiceType> {
       return result;
     };
 
-    return { ...helpers, nextPage, status };
+    return { ...helpers, ...status, nextPage };
   }
 
   private updateCocktailsResources = action(

@@ -35,7 +35,7 @@ export class CocktailQuery extends Query<CocktailServiceType> {
 
     const helpers = this.createResourceHelpers<Cocktail>(getData, resource.key);
 
-    return { status, ...helpers };
+    return { ...status, ...helpers };
   }
 }
 
