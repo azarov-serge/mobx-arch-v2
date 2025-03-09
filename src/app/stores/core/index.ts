@@ -1,2 +1,2 @@
 export * from './resources';
-export * from './fetch-resource';
+export * from './query';

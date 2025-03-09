@@ -5,7 +5,7 @@ import {
   CategoryCocktailResponse,
   CategoryCocktails,
   CategoryCocktailsResponse,
-} from '../services';
+} from '../queries';
 import { RequestArgs } from '../core/types';
 import { PaginationResource } from '../core';
 import { delay } from '../../../share';

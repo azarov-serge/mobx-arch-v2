@@ -1,23 +1,17 @@
-import { categoryView } from '../../../app/stores';
+import { categoryQuery } from '../../../app/stores';
 
 export const useGetCategories = () => {
-  const service = categoryView.service;
-  const resource = service.categoriesResource;
+  const resource = categoryQuery.categoriesResource;
 
-  const status = categoryView.getStatus<
-    Awaited<ReturnType<typeof service.getCategories>>
-  >(resource.key);
-
-  const { clearError, reset } = categoryView.createResourceHelpers(
-    resource.key
-  );
+  const { status, getData, clearError, reset } =
+    categoryQuery.getCategoriesHelpers(resource);
 
   return {
     isFetching: status.isFetching,
     isFetched: status.isFetched,
     data: status.response,
     error: status.error,
-    getData: categoryView.getCategories,
+    getData,
     clearError,
     reset,
   };

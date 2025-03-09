@@ -98,8 +98,8 @@ export class RestService<T> {
     this.setStatus(resource.key, status as unknown as ResourceStatus<T>);
 
     const headers = {
-      ['Accept']: 'application/json',
-      ['Content-Type']: 'application/json',
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...(args?.headers ?? {}),
     };
 

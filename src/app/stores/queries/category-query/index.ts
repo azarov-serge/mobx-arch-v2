@@ -1,3 +1,3 @@
-export * from './cocktail-service';
+export * from './category-query';
 export * from './models';
 export * from './types';
