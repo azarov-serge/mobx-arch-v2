@@ -106,7 +106,7 @@ export class RestService<T> {
     if (mock) {
       await delay(mock?.delay || DEFAULT_DELAY_MS);
       status = status.copyWith({
-        response: mock.data,
+        data: mock.data,
         isFetched: true,
         isFetching: false,
       });
@@ -131,7 +131,7 @@ export class RestService<T> {
       const responseData = isAxiosResponse(response) ? response.data : response;
 
       status = status.copyWith({
-        response: adaptResponse ? adaptResponse(responseData) : responseData,
+        data: adaptResponse ? adaptResponse(responseData) : responseData,
         isFetched: true,
         isFetching: false,
       });

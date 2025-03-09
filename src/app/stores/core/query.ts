@@ -26,19 +26,19 @@ export class Query<T> {
         PaginationResponse<unknown>
       >;
 
-      if (pageStatus.response) {
+      if (pageStatus.data) {
         const data = [
-          ...(result?.response?.data ?? []),
-          ...(pageStatus.response?.data ?? []),
+          ...(result?.data?.data ?? []),
+          ...(pageStatus.data?.data ?? []),
         ];
 
         result = result.copyWith({
           ...result,
           ...pageStatus,
 
-          response: {
-            ...result.response,
-            ...(pageStatus.response ?? {}),
+          data: {
+            ...result.data,
+            ...(pageStatus.data ?? {}),
             data,
           },
         });
@@ -46,13 +46,13 @@ export class Query<T> {
         result = result.copyWith({
           ...result,
           ...pageStatus,
-          response: {
+          data: {
             count: 0,
             lastId: 0,
             page: 0,
             limit: 0,
             data: [],
-            ...(result.response ?? {}),
+            ...(result.data ?? {}),
           },
         });
       }
