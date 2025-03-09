@@ -1,21 +1,19 @@
-import { toJS } from 'mobx';
-import { FetchResource } from './fetch-resource';
+import { computed, makeObservable } from 'mobx';
+import { RestService } from './rest-service';
+import { ResourceHelpers } from './types';
 import { PaginationResponse, ResourceStatus } from './resources';
-import { CreateResourceHelpersReturnData } from './types';
 
-export class View<S> {
-  private readonly _service: FetchResource<unknown>;
+export class Query<T> {
+  public rest: RestService<T>;
 
-  constructor(service: S) {
-    this._service = service as FetchResource<unknown>;
-  }
+  constructor() {
+    makeObservable(this);
 
-  get service(): S {
-    return this._service as unknown as S;
+    this.rest = new RestService();
   }
 
   public getStatus<T>(key: string): T {
-    return this._service.rest.getStatus(key) as T;
+    return this.rest.getStatus(key) as T;
   }
 
   public getPaginationStatus<S>(keys: string[]): S {
@@ -28,19 +26,19 @@ export class View<S> {
         PaginationResponse<unknown>
       >;
 
-      if (pageStatus.response) {
+      if (pageStatus.data) {
         const data = [
-          ...(result?.response?.data ?? []),
-          ...(pageStatus.response?.data ?? []),
+          ...(result?.data?.data ?? []),
+          ...(pageStatus.data?.data ?? []),
         ];
 
         result = result.copyWith({
           ...result,
           ...pageStatus,
 
-          response: {
-            ...result.response,
-            ...(pageStatus.response ?? {}),
+          data: {
+            ...result.data,
+            ...(pageStatus.data ?? {}),
             data,
           },
         });
@@ -48,13 +46,13 @@ export class View<S> {
         result = result.copyWith({
           ...result,
           ...pageStatus,
-          response: {
+          data: {
             count: 0,
             lastId: 0,
             page: 0,
             limit: 0,
             data: [],
-            ...(result.response ?? {}),
+            ...(result.data ?? {}),
           },
         });
       }
@@ -65,16 +63,20 @@ export class View<S> {
     return status as S;
   }
 
-  public createResourceHelpers(
+  public createResourceHelpers<D>(
+    getData: () => Promise<ResourceStatus<D>>,
     keys: string[] | string,
     key?: string
-  ): CreateResourceHelpersReturnData {
-    const clearError = () => this._service.rest.clearError(keys);
-    const reset = () => this._service.rest.reset(keys);
-    const resetResource = key
-      ? () => this._service.rest.resetResource(key)
-      : () => {};
+  ): ResourceHelpers<D> {
+    const clearError = () => this.rest.clearError(keys);
+    const reset = () => this.rest.reset(keys);
+    const resetResource = key ? () => this.rest.resetResource(key) : () => {};
 
-    return { clearError, reset, resetResource };
+    return { getData, clearError, reset, resetResource };
+  }
+
+  @computed
+  get statuses() {
+    return this.rest.statuses;
   }
 }

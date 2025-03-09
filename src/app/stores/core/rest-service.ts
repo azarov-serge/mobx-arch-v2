@@ -98,15 +98,15 @@ export class RestService<T> {
     this.setStatus(resource.key, status as unknown as ResourceStatus<T>);
 
     const headers = {
-      ['Accept']: 'application/json',
-      ['Content-Type']: 'application/json',
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...(args?.headers ?? {}),
     };
 
     if (mock) {
       await delay(mock?.delay || DEFAULT_DELAY_MS);
       status = status.copyWith({
-        response: mock.data,
+        data: mock.data,
         isFetched: true,
         isFetching: false,
       });
@@ -131,7 +131,7 @@ export class RestService<T> {
       const responseData = isAxiosResponse(response) ? response.data : response;
 
       status = status.copyWith({
-        response: adaptResponse ? adaptResponse(responseData) : responseData,
+        data: adaptResponse ? adaptResponse(responseData) : responseData,
         isFetched: true,
         isFetching: false,
       });

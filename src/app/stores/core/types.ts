@@ -21,7 +21,8 @@ export type RequestArgs<T> = {
   adaptResponse?: (response: unknown) => T | null;
 };
 
-export type CreateResourceHelpersReturnData = {
+export type ResourceHelpers<D> = {
+  getData: () => Promise<ResourceStatus<D>>;
   clearError: () => void;
   reset: () => void;
   resetResource: () => void;
