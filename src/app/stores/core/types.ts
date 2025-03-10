@@ -1,4 +1,11 @@
-import { PaginationResource, Resource, ResourceStatus } from './resources';
+import {
+  PaginationResource,
+  PaginationResourceInterface,
+  Resource,
+  ResourceInterface,
+  ResourceParams,
+  ResourceStatus,
+} from './resources';
 
 export type Statuses<T> = {
   [key: string]: ResourceStatus<T>;
@@ -22,8 +29,18 @@ export type RequestArgs<T> = {
 };
 
 export type ResourceHelpers<D> = {
-  getData: () => Promise<ResourceStatus<D>>;
-  clearError: () => void;
-  reset: () => void;
+  fetchData: (args?: Partial<ResourceInterface>) => Promise<ResourceStatus<D>>;
+  clearError: (args?: Partial<ResourceInterface>) => void;
+  reset: (args?: Partial<ResourceInterface>) => void;
+  resetResource: () => void;
+};
+
+export type PaginationResourceHelpers<D> = {
+  fetchData: (
+    args?: Partial<PaginationResourceInterface>
+  ) => Promise<ResourceStatus<D>>;
+  nextPage: (params: ResourceParams) => boolean;
+  clearError: (args?: Partial<PaginationResourceInterface>) => void;
+  reset: (args?: Partial<PaginationResourceInterface>) => void;
   resetResource: () => void;
 };

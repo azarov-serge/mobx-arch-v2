@@ -1,12 +1,7 @@
-import React from 'react';
-import { data, Link, useNavigate, useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 import { Column } from '@admiral-ds/react-ui';
 
-import { CategoryCocktail } from '../../../../../app/stores';
-
 export const useColumns = (): Column[] => {
-  const navigate = useNavigate();
-
   const columns: Column[] = [
     {
       name: 'name',

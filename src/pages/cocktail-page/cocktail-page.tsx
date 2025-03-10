@@ -10,7 +10,7 @@ import { NotFoundPage } from '../not-found-page';
 export const CocktailPage: React.FC = observer(() => {
   const { id = '' } = useParams();
 
-  const { isFetching, isFetched, getData, data } = useGetCocktail(id);
+  const { isFetching, isFetched, fetchData, data } = useGetCocktail(id);
 
   React.useEffect(() => {
     if (!id) {
@@ -18,7 +18,7 @@ export const CocktailPage: React.FC = observer(() => {
     }
 
     if (!isFetching && !isFetched) {
-      getData();
+      fetchData({ params: { i: id } });
     }
   }, [id, isFetching, isFetched]);
 

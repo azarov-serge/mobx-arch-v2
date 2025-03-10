@@ -1,14 +1,9 @@
-import { ResourceInterface, ResourceParams } from './types';
+import {
+  PageResourceParams,
+  PaginationResourceInterface,
+  ResourceParams,
+} from './types';
 import { AbstractResource } from './abstract-resource';
-
-type PageResourceParams = Record<number, ResourceParams>;
-
-type PaginationResourceInterface = ResourceInterface &
-  ResourceInterface & {
-    id: number | string;
-    page?: number;
-    pageParams: PageResourceParams;
-  };
 
 export class PaginationResource extends AbstractResource {
   public page: number = 1;
@@ -51,7 +46,7 @@ export class PaginationResource extends AbstractResource {
   }
 
   public copyWith = (
-    data?: PaginationResourceInterface
+    data?: Partial<PaginationResourceInterface>
   ): PaginationResource => {
     return new PaginationResource({ ...this, ...(data ?? {}) });
   };
