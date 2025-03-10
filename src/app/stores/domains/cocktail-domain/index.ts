@@ -1,3 +1,3 @@
-export * from './cocktail-service';
+export * from './cocktail-domain';
 export * from './models';
 export * from './types';
