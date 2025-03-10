@@ -1,13 +1,11 @@
 import qs from 'query-string';
 import { axiosInstance } from '../instances';
-import {
-  CategoryCocktail,
-  CategoryCocktailResponse,
-  CategoryCocktails,
-} from '../services';
+import { CategoryCocktails } from '../services';
 import { RequestArgs } from '../core/types';
 import { PaginationQuery, QueryError } from '../core';
-import { delay } from '../../../share';
+import { delay } from '../../../shared';
+import { CategoryCocktailResponse } from '../../../shared/models/types';
+import { CategoryCocktail } from '../../../shared/models';
 
 export class CocktailHelper {
   cache: Record<string, any> = {};

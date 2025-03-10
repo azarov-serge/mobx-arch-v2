@@ -26,6 +26,10 @@ export class View<Service, Key extends string> {
     return this._service as unknown as Service;
   }
 
+  public resetAll = (): void => {
+    this._service.rest.resetAll();
+  };
+
   protected createHelpers(key: Key, query: Query): QueryHelpers {
     if (!this.helpers[key]) {
       const clearError = (args?: QueryInterface): void => {

@@ -1,35 +1,7 @@
-import { CategoryCocktail, Cocktail } from './models';
+import { CategoryCocktail, Cocktail } from '../../../../shared/models';
 import { PaginationResponse } from '../../core';
 
-export type CategoryCocktailInterface = {
-  id: string;
-  name: string;
-  img: string | null;
-};
-
-export type CategoryCocktailResponse = {
-  idDrink: string;
-  strDrink: string;
-  strDrinkThumb: string | null;
-};
-
-export type CategoryCocktailsResponse = {
-  count: number;
-  lastId: number | string;
-  data: CategoryCocktailResponse[];
-};
-
 export type CategoryCocktails = PaginationResponse<CategoryCocktail>;
-
-export type CocktailInterface = {
-  id: string;
-  name: string;
-  img: string | null;
-  category: string;
-  type: string;
-  instructions: string;
-  ingredients: string[];
-};
 
 export type CocktailIngredientsResponse = Record<
   `strIngredient${

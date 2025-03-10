@@ -2,7 +2,7 @@ import React from 'react';
 import { useSearchParams } from 'react-router';
 import { observer } from 'mobx-react';
 
-import { useGetCategories } from '../../../../share/hooks';
+import { useGetCategories } from '../../../../shared/hooks';
 import { Styled } from './styled';
 
 const PARAM_NAME = 'category';
