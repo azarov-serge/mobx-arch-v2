@@ -11,7 +11,7 @@ import {
   CocktailServiceType,
 } from './types';
 
-import { Cocktail } from './models';
+import { Cocktail } from '../../../../shared/models';
 import { queries } from './constants';
 
 export class CocktailService extends FetchResource<

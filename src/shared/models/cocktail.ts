@@ -2,7 +2,7 @@ import {
   CocktailInterface,
   CocktailResponse,
   CocktailIngredientsResponse,
-} from '../types';
+} from '../../app/stores/services/cocktail-service/types';
 
 const INGREDIENTS_COUNT = 15;
 

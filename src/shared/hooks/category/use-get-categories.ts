@@ -1,4 +1,4 @@
-import { categoryDomain } from '../../../app/stores';
+import { categoryView } from '../../../app/stores';
 
 export const useGetCategories = () => {
   return categoryView.createCategoriesData();

@@ -1,4 +1,4 @@
-import { CategoryCocktail, Cocktail } from './models';
+import { CategoryCocktail, Cocktail } from '../../../../shared/models';
 import { PaginationResponse } from '../../core';
 
 export type CategoryCocktailInterface = {

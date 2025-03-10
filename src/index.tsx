@@ -9,7 +9,8 @@ import {
   DropdownProvider,
 } from '@admiral-ds/react-ui';
 
-import * as queriesStores from './app/stores/domains';
+import * as servicesStores from './app/stores/services';
+import * as viewsStores from './app/stores/views';
 
 import { App } from './app';
 
@@ -23,7 +24,7 @@ root.render(
   <ThemeProvider theme={LIGHT_THEME}>
     <DropdownProvider>
       <FontsVTBGroup />
-      <MobXProvider {...queriesStores}>
+      <MobXProvider {...viewsStores} {...servicesStores}>
         <App />
       </MobXProvider>
     </DropdownProvider>
