@@ -4,22 +4,25 @@ import {
   CategoryCocktail,
   CategoryCocktailResponse,
   CategoryCocktails,
-  CategoryCocktailsResponse,
 } from '../services';
 import { RequestArgs } from '../core/types';
-import { PaginationResource } from '../core';
+import { PaginationQuery, QueryError } from '../core';
 import { delay } from '../../../share';
 
 export class CocktailHelper {
   cache: Record<string, any> = {};
 
-  fetchCocktails = async ({
-    resource,
-  }: RequestArgs<CategoryCocktailsResponse>): Promise<CategoryCocktails> => {
-    const paginationResource = resource as PaginationResource;
-    const url = paginationResource.url;
-    const category = resource.getParamsValue<string>('c', '');
-    const limit = paginationResource.getParamsValue<number>('limit');
+  fetchCocktails = async (
+    args?: Partial<RequestArgs<CategoryCocktails>>
+  ): Promise<CategoryCocktails> => {
+    const { query } = args ?? {};
+    if (!query) {
+      throw new QueryError({ status: 422, message: 'Query not found' });
+    }
+    const paginationQuery = query as PaginationQuery;
+    const url = paginationQuery.url;
+    const category = query.getParamsValue<string>('c', '');
+    const limit = paginationQuery.getParamsValue<number>('limit');
 
     let cache = this.cache[category] as CategoryCocktails;
 
@@ -28,14 +31,14 @@ export class CocktailHelper {
         drinks: CategoryCocktailResponse[];
       }>({
         url: `${url}?${qs.stringify({ c: category })}`,
-        method: resource.method,
+        method: query.method,
       });
 
       this.cache[category] = {
         count: response.data.drinks.length,
         lastId: '',
         data: response.data.drinks.map(CategoryCocktail.fromJson),
-        page: paginationResource.page,
+        page: paginationQuery.page,
         limit,
       };
     } else {
@@ -44,7 +47,7 @@ export class CocktailHelper {
 
     cache = this.cache[category] as CategoryCocktails;
 
-    const prevLastId = paginationResource.getPaginationParamsValue<string>(
+    const prevLastId = paginationQuery.getPaginationParamsValue<string>(
       'last-id',
       ''
     );
@@ -63,7 +66,7 @@ export class CocktailHelper {
       count: cache.data.length,
       lastId,
       data: cache.data.slice(prevLastIndex, lastIndex),
-      page: paginationResource.page,
+      page: paginationQuery.page,
       limit,
     };
   };

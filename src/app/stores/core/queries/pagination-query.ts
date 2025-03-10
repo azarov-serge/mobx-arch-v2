@@ -1,20 +1,15 @@
-import { ResourceInterface, ResourceParams } from './types';
-import { AbstractResource } from './abstract-resource';
+import {
+  PageQueryParams,
+  PaginationQueryInterface,
+  QueryParams,
+} from './types';
+import { AbstractQuery } from './abstract-query';
 
-type PageResourceParams = Record<number, ResourceParams>;
-
-type PaginationResourceInterface = ResourceInterface &
-  ResourceInterface & {
-    id: number | string;
-    page?: number;
-    pageParams: PageResourceParams;
-  };
-
-export class PaginationResource extends AbstractResource {
+export class PaginationQuery extends AbstractQuery {
   public page: number = 1;
-  public readonly pageParams: PageResourceParams = {};
+  public readonly pageParams: PageQueryParams = {};
 
-  constructor(data?: Partial<PaginationResourceInterface>) {
+  constructor(data?: Partial<PaginationQueryInterface>) {
     super(data);
 
     this.page = data?.page ?? this.page;
@@ -51,18 +46,18 @@ export class PaginationResource extends AbstractResource {
   }
 
   public copyWith = (
-    data?: PaginationResourceInterface
-  ): PaginationResource => {
-    return new PaginationResource({ ...this, ...(data ?? {}) });
+    data?: Partial<PaginationQueryInterface>
+  ): PaginationQuery => {
+    return new PaginationQuery({ ...this, ...(data ?? {}) });
   };
 
-  public nextPage = (params: ResourceParams): boolean => {
-    const currentParams = PaginationResource.createParams({
+  public nextPage = (params: QueryParams): boolean => {
+    const currentParams = PaginationQuery.createParams({
       ...this.params,
       ...(this.pageParams[this.page] ?? {}),
     });
 
-    const newParams = PaginationResource.createParams(params);
+    const newParams = PaginationQuery.createParams(params);
 
     if (currentParams === newParams) {
       return false;
@@ -84,7 +79,7 @@ export class PaginationResource extends AbstractResource {
     return (params[key] ?? defaultValue) as T;
   };
 
-  static isInstance(value: unknown): value is PaginationResource {
-    return value instanceof PaginationResource;
+  static isInstance(value: unknown): value is PaginationQuery {
+    return value instanceof PaginationQuery;
   }
 }

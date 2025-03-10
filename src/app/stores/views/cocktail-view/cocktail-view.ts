@@ -1,23 +1,67 @@
-import { action, makeObservable } from 'mobx';
+import { makeObservable } from 'mobx';
 
-import { CocktailService, cocktailService } from '../../services';
-import { View } from '../../core/view-store';
+import {
+  CategoryCocktails,
+  CocktailKey,
+  CocktailService,
+  cocktailService,
+} from '../../services';
+import {
+  PaginationQuery,
+  PaginationQueryData,
+  QueryData,
+  View,
+} from '../../core';
 
-export class CocktailView extends View<CocktailService> {
+type CocktailData = Awaited<
+  ReturnType<typeof cocktailService.fetchCocktail>
+>['data'];
+
+export class CocktailView extends View<CocktailService, CocktailKey> {
   constructor() {
     super(cocktailService);
-    makeObservable(this, {
-      getCocktail: action.bound,
-      resetAll: action.bound,
-    });
+    makeObservable(this);
   }
 
-  // #region Cocktail
-  public async getCocktail(
+  public createCocktailData = (
     id: string
-  ): Promise<ReturnType<typeof cocktailService.getCocktail>> {
-    return await this.service.getCocktail(id);
-  }
+  ): QueryData<CocktailData, typeof this.service.fetchCocktail> => {
+    const query = this.service.queries.cocktail.copyWith({
+      params: { i: id },
+    });
+
+    const status = this.service.getStatus<CocktailData>(query.key);
+    const helpers = this.createHelpers('categories', query);
+
+    return {
+      ...status,
+      ...helpers,
+      fetchData: this.service.fetchCocktail,
+    };
+  };
+
+  public createCocktailsData = (
+    category: string
+  ): PaginationQueryData<
+    CategoryCocktails,
+    typeof this.service.fetchCocktails
+  > => {
+    const query = (this.service.queries[category] ??
+      this.service.queries.cocktails.copyWith({
+        params: { ...this.service.queries.cocktails.params, c: category },
+      })) as PaginationQuery;
+
+    const status = this.service.getPaginationStatus<CategoryCocktails>(
+      query.keys
+    );
+    const helpers = this.createPaginationHelpers(category, query);
+
+    return {
+      ...status,
+      ...helpers,
+      fetchData: this.service.fetchCocktails,
+    };
+  };
 
   public resetAll() {
     this.service.rest.resetAll();

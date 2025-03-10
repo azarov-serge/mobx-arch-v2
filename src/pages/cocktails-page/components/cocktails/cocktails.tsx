@@ -11,7 +11,7 @@ import { Styled } from './styled';
 export const Cocktails: React.FC = observer(() => {
   const [searchParams] = useSearchParams();
   const category = searchParams.get('category') ?? '';
-  const { isFetching, isFetched, getData, nextPage, data, resetResource } =
+  const { isFetching, isFetched, fetchData, nextPage, data, resetQuery } =
     useGetCocktails(category);
   const columns = useColumns();
   const ref = React.useRef<HTMLDivElement>(null);
@@ -21,9 +21,9 @@ export const Cocktails: React.FC = observer(() => {
       return;
     }
 
-    getData();
+    fetchData(category);
 
-    return () => resetResource();
+    return () => resetQuery();
   }, [category]);
 
   if (!category) {
@@ -45,7 +45,7 @@ export const Cocktails: React.FC = observer(() => {
 
     if (!isFetching && rowsAmount < rowsCount) {
       if (nextPage({ 'last-id': data?.lastId ?? '' })) {
-        getData();
+        fetchData(category);
       }
     }
   };

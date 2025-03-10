@@ -1,80 +1,29 @@
-import { action, makeObservable } from 'mobx';
+import { makeObservable } from 'mobx';
 
-import {
-  CategoryCocktails,
-  CategoryService,
-  categoryService,
-} from '../../services';
+import { CategoryKey, CategoryService, categoryService } from '../../services';
 
-import { View } from '../../core/view-store';
-import { delay } from '../../../../share';
-import { ResourceStatus } from '../../core';
-import { CategoryViewData } from './types';
+import { QueryData, View } from '../../core';
 
-export class CategoryView extends View<CategoryService> {
+type CategoriesData = Awaited<
+  ReturnType<typeof categoryService.fetchCategories>
+>['data'];
+
+export class CategoryView extends View<CategoryService, CategoryKey> {
   constructor() {
     super(categoryService);
-    makeObservable(this, {
-      getCategories: action.bound,
-      getCocktails: action.bound,
-      resetAll: action.bound,
-    });
+    makeObservable(this);
   }
 
-  public async getCategories(): Promise<
-    ReturnType<typeof categoryService.getCategories>
-  > {
-    return await this.service.getCategories();
-  }
+  public createCategoriesData = (): QueryData<
+    CategoriesData,
+    typeof this.service.fetchCategories
+  > => {
+    const query = this.service.queries.categories;
+    const status = this.service.getStatus<CategoriesData>(query.key);
+    const helpers = this.createHelpers('categories', query);
 
-  public async getCocktails(
-    category: string
-  ): Promise<ReturnType<typeof categoryService.getCocktails>> {
-    await delay(1_000);
-    return await this.service.getCocktails(category);
-  }
-
-  public resetAll() {
-    this.service.rest.resetAll();
-  }
-
-  get data(): CategoryViewData {
-    return {
-      categories: this.service.rest.getStatus(
-        this.service.categoriesResource.key
-      ),
-      cocktails: (category: string) => {
-        const resource = this.service.getCocktailsResources(category);
-
-        const status = resource.keys.reduce<ResourceStatus<CategoryCocktails>>(
-          (acc, key) => {
-            const pageStatus =
-              this.service.rest.getStatus<CategoryCocktails>(key);
-
-            if (pageStatus.response) {
-              const data = [
-                ...(acc.response?.data ?? []),
-                ...(pageStatus.response?.data ?? []),
-              ];
-
-              acc = acc.copyWith({
-                ...pageStatus,
-                response: {
-                  ...pageStatus.response,
-                  data,
-                },
-              });
-            }
-
-            return acc;
-          },
-          new ResourceStatus<CategoryCocktails>()
-        );
-
-        return status;
-      },
-    };
-  }
+    return { ...status, ...helpers, fetchData: this.service.fetchCategories };
+  };
 }
 
 export const categoryView = new CategoryView();

@@ -1,78 +1,34 @@
-import { makeObservable, observable, toJS } from 'mobx';
-import {
-  FetchResource,
-  PaginationResource,
-  Resource,
-  ResourceStatus,
-} from '../../core';
-import { BASE_URL } from '../../endpoints';
+import { makeObservable } from 'mobx';
+import { FetchResource, QueryStatus } from '../../core';
 
 import {
   CategoryServiceType,
+  CategoryKey,
   Categories,
   CategoryResponse,
-  CategoryCocktails,
 } from './types';
 
-import { cocktailHelper } from '../../helpers/cocktail-helper';
+import { queries } from './constants';
 
-const DEFAULT_PAGE_LIMIT = 10;
-export class CategoryService extends FetchResource<CategoryServiceType> {
+export class CategoryService extends FetchResource<
+  CategoryServiceType,
+  CategoryKey
+> {
   constructor() {
-    super();
+    super(queries);
     makeObservable(this);
   }
 
-  categoriesResource = new Resource({
-    url: `${BASE_URL}/list.php?c=list`,
-  });
-
-  @observable.deep
-  cocktailsResources = {} as Record<string, PaginationResource>;
-
-  public getCocktailsResources(category: string) {
-    const resource =
-      this.cocktailsResources[category] ??
-      new PaginationResource({
-        url: `${BASE_URL}/filter.php`,
-        params: { c: category, limit: DEFAULT_PAGE_LIMIT },
-      });
-
-    if (!this.cocktailsResources[category] && category) {
-      this.cocktailsResources[category] = resource;
-    }
-
-    return resource;
-  }
-
-  public resetCocktailsResources(category: string) {
-    this.cocktailsResources[category] = new PaginationResource({
-      url: `${BASE_URL}/filter.php`,
-      params: { c: category, limit: DEFAULT_PAGE_LIMIT },
-    });
-  }
-
-  public getCategories(): Promise<ResourceStatus<Categories>> {
-    return this.rest.request<Categories>({
-      resource: this.categoriesResource,
+  public fetchCategories = (): Promise<QueryStatus<Categories | null>> => {
+    return this.rest.request<Categories | null>({
+      query: this.queries.categories,
       adaptResponse: (response) => {
         return (response as { drinks: CategoryResponse[] }).drinks.map(
           (item) => item.strCategory
         );
       },
     });
-  }
-
-  public getCocktails(
-    category: string
-  ): Promise<ResourceStatus<CategoryCocktails>> {
-    const resource = this.getCocktailsResources(category);
-
-    return this.rest.request<CategoryCocktails>({
-      resource,
-      fetch: cocktailHelper.fetchCocktails,
-    });
-  }
+  };
 }
 
 export const categoryService = new CategoryService();

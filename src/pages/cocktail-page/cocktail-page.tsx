@@ -1,7 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { Link, useParams } from 'react-router';
-import { Spinner } from '@admiral-ds/react-ui';
 
 import { Styled } from './styled';
 import { useGetCocktail } from '../../share/hooks';
@@ -10,7 +9,7 @@ import { NotFoundPage } from '../not-found-page';
 export const CocktailPage: React.FC = observer(() => {
   const { id = '' } = useParams();
 
-  const { isFetching, isFetched, getData, data } = useGetCocktail(id);
+  const { isFetching, isFetched, fetchData, data } = useGetCocktail(id);
 
   React.useEffect(() => {
     if (!id) {
@@ -18,17 +17,12 @@ export const CocktailPage: React.FC = observer(() => {
     }
 
     if (!isFetching && !isFetched) {
-      getData();
+      fetchData(id);
     }
   }, [id, isFetching, isFetched]);
 
   if (isFetching) {
     return <p>Loading ....</p>;
-    return (
-      <Styled.Spinner>
-        <Spinner />
-      </Styled.Spinner>
-    );
   }
 
   if (isFetched && !data) {

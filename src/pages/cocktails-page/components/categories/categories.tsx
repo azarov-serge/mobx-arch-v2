@@ -2,21 +2,19 @@ import React from 'react';
 import { useSearchParams } from 'react-router';
 import { observer } from 'mobx-react';
 
-import { Spinner } from '@admiral-ds/react-ui';
-
 import { useGetCategories } from '../../../../share/hooks';
 import { Styled } from './styled';
 
 const PARAM_NAME = 'category';
 
 export const Categories: React.FC = observer(() => {
-  const { isFetching, data, getData } = useGetCategories();
+  const { isFetching, data, fetchData } = useGetCategories();
   const [searchParams, setSearchParams] = useSearchParams();
   const active = searchParams.get(PARAM_NAME);
 
   React.useEffect(() => {
     if (!data) {
-      getData();
+      fetchData();
     }
   }, []);
 

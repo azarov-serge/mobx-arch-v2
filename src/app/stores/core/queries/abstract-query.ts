@@ -1,13 +1,13 @@
 import qs, { StringifyOptions } from 'query-string';
-import { ResourceInterface, ResourceMethod, ResourceParams } from './types';
+import { QueryInterface, QueryMethod, QueryParams } from './types';
 
-export abstract class AbstractResource implements ResourceInterface {
+export abstract class AbstractQuery implements QueryInterface {
   public readonly id: string = '';
   public readonly url: string = '';
-  public readonly method: ResourceMethod = 'GET';
-  public params: ResourceParams = {};
+  public readonly method: QueryMethod = 'GET';
+  public params: QueryParams = {};
 
-  constructor(data?: Partial<ResourceInterface>) {
+  constructor(data?: Partial<QueryInterface>) {
     this.id = `${data?.id ?? this.id}`;
     this.method = data?.method ?? this.method;
     this.params = data?.params ?? this.params;
@@ -37,12 +37,12 @@ export abstract class AbstractResource implements ResourceInterface {
     throw Error(`This is abstract method with ${JSON.stringify(data)}`);
   }
 
-  protected createUrl = (params?: ResourceParams): string => {
-    const query = AbstractResource.createParams(params ?? this.params);
+  protected createUrl = (params?: QueryParams): string => {
+    const query = AbstractQuery.createParams(params ?? this.params);
     return `${this.url}${query ? `?${query}` : ''}`;
   };
 
-  protected createKey = (url?: string, params?: ResourceParams): string => {
+  protected createKey = (url?: string, params?: QueryParams): string => {
     const id = this.id ? `/${this.id}` : '';
 
     return `[${this.method}]:${url ?? this.createUrl(params)}${id}`;
@@ -55,7 +55,7 @@ export abstract class AbstractResource implements ResourceInterface {
       return url;
     }
 
-    return `${url}?${AbstractResource.createParams(query)}`;
+    return `${url}?${AbstractQuery.createParams(query)}`;
   }
 
   /** Использует qs.stringify. Сортирует ключи и конвертирует в query строку
@@ -77,7 +77,9 @@ export abstract class AbstractResource implements ResourceInterface {
         .sort((a, b) => a.localeCompare(b))
         .reduce<Record<string, unknown>>((acc, key) => {
           acc[key] = Array.isArray(query[key])
-            ? query[key].sort((a, b) =>
+            ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              //@ts-ignore
+              query[key].sort((a, b) =>
                 JSON.stringify(a).localeCompare(JSON.stringify(b))
               )
             : query[key];

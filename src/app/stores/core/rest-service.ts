@@ -1,7 +1,7 @@
 import { observable, makeAutoObservable, action } from 'mobx';
 
 import { RequestArgs, Statuses } from './types';
-import { Resource, ResourceError, ResourceStatus } from './resources';
+import { Query, QueryError, QueryStatus } from './queries';
 import { delay, isAxiosResponse } from '../../../share';
 import axios, { AxiosResponse } from 'axios';
 import { axiosInstance } from '../instances';
@@ -16,17 +16,17 @@ export class RestService<T> {
     makeAutoObservable(this);
   }
 
-  public getStatus = <T>(key: string): ResourceStatus<T> => {
+  public getStatus = <T>(key: string): QueryStatus<T> => {
     const status = this.statuses[key];
 
     if (!status) {
-      return new ResourceStatus();
+      return new QueryStatus();
     }
 
-    return status as unknown as ResourceStatus<T>;
+    return status as unknown as QueryStatus<T>;
   };
 
-  public setStatus = action((key: string, status: ResourceStatus<T>): void => {
+  public setStatus = action((key: string, status: QueryStatus<T>): void => {
     this.statuses[key] = status;
   });
 
@@ -42,7 +42,7 @@ export class RestService<T> {
     delete this.statuses[keys];
   }
 
-  public resetResource = (key: string): void => {
+  public resetQuery = (key: string): void => {
     Object.keys(this.statuses).forEach((statusKey) => {
       if (!statusKey.includes(key)) {
         return;
@@ -59,7 +59,7 @@ export class RestService<T> {
   public clearError = (keys: string[] | string): void => {
     if (Array.isArray(keys)) {
       keys.forEach((key) => {
-        const status = this.statuses[key] ?? new ResourceStatus();
+        const status = this.statuses[key] ?? new QueryStatus();
 
         this.statuses[key] = status.copyWith({ error: null });
       });
@@ -67,15 +67,13 @@ export class RestService<T> {
       return;
     }
 
-    const status = this.statuses[keys] ?? new ResourceStatus();
+    const status = this.statuses[keys] ?? new QueryStatus();
 
     this.statuses[keys] = status.copyWith({ error: null });
   };
 
-  public request = async <R>(
-    args: RequestArgs<R>
-  ): Promise<ResourceStatus<R>> => {
-    const { resource, data, fetch, adaptResponse, mock } = args;
+  public request = async <R>(args: RequestArgs<R>): Promise<QueryStatus<R>> => {
+    const { query, data, fetch, adaptResponse, mock } = args;
 
     let params = '';
 
@@ -83,35 +81,35 @@ export class RestService<T> {
       params = `?${
         typeof args.params === 'string'
           ? params
-          : Resource.createParams(args.params ?? {})
+          : Query.createParams(args.params ?? {})
       }`;
     }
 
-    let status = this.getStatus<R>(resource.key);
+    let status = this.getStatus<R>(query.key);
 
-    if (status.isFetching && resource.method === 'GET') {
-      return status as unknown as ResourceStatus<R>;
+    if (status.isFetching && query.method === 'GET') {
+      return status as unknown as QueryStatus<R>;
     }
 
     status = status.copyWith({ isFetching: true, error: null });
 
-    this.setStatus(resource.key, status as unknown as ResourceStatus<T>);
+    this.setStatus(query.key, status as unknown as QueryStatus<T>);
 
     const headers = {
-      ['Accept']: 'application/json',
-      ['Content-Type']: 'application/json',
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...(args?.headers ?? {}),
     };
 
     if (mock) {
       await delay(mock?.delay || DEFAULT_DELAY_MS);
       status = status.copyWith({
-        response: mock.data,
+        data: mock.data,
         isFetched: true,
         isFetching: false,
       });
 
-      this.setStatus(resource.key, status as unknown as ResourceStatus<T>);
+      this.setStatus(query.key, status as unknown as QueryStatus<T>);
 
       return status;
     }
@@ -120,8 +118,8 @@ export class RestService<T> {
       const request: Promise<R | AxiosResponse<R>> = fetch
         ? fetch(args)
         : axiosInstance({
-            url: resource.requestUrl,
-            method: resource.method,
+            url: query.requestUrl,
+            method: query.method,
             headers,
             data,
           });
@@ -131,32 +129,32 @@ export class RestService<T> {
       const responseData = isAxiosResponse(response) ? response.data : response;
 
       status = status.copyWith({
-        response: adaptResponse ? adaptResponse(responseData) : responseData,
+        data: adaptResponse ? adaptResponse(responseData) : responseData,
         isFetched: true,
         isFetching: false,
       });
 
-      this.setStatus(resource.key, status as unknown as ResourceStatus<T>);
+      this.setStatus(query.key, status as unknown as QueryStatus<T>);
 
       return status;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         status = status.copyWith({
-          error: new ResourceError({
+          error: new QueryError({
             status: error.status ?? 500,
             message: error.message,
           }),
         });
       } else if (error instanceof Error) {
         status = status.copyWith({
-          error: new ResourceError({
+          error: new QueryError({
             status: 500,
             message: error.message,
           }),
         });
       } else {
         status = status.copyWith({
-          error: new ResourceError({
+          error: new QueryError({
             status: 500,
             message: JSON.stringify(error),
           }),
@@ -168,7 +166,7 @@ export class RestService<T> {
         isFetching: false,
       });
 
-      this.setStatus(resource.key, status as unknown as ResourceStatus<T>);
+      this.setStatus(query.key, status as unknown as QueryStatus<T>);
 
       return status;
     }
