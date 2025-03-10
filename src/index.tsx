@@ -9,7 +9,7 @@ import {
   DropdownProvider,
 } from '@admiral-ds/react-ui';
 
-import * as queriesStores from './app/stores/queries';
+import * as queriesStores from './app/stores/domains';
 
 import { App } from './app';
 

@@ -10,13 +10,13 @@ import { Styled } from './styled';
 const PARAM_NAME = 'category';
 
 export const Categories: React.FC = observer(() => {
-  const { isFetching, data, getData } = useGetCategories();
+  const { isFetching, data, fetchData } = useGetCategories();
   const [searchParams, setSearchParams] = useSearchParams();
   const active = searchParams.get(PARAM_NAME);
 
   React.useEffect(() => {
     if (!data) {
-      getData();
+      fetchData();
     }
   }, []);
 

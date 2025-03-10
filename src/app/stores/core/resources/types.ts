@@ -22,3 +22,12 @@ export type PaginationResponse<T> = {
   limit: number;
   data: T[];
 };
+
+export type PageResourceParams = Record<number, ResourceParams>;
+
+export type PaginationResourceInterface = ResourceInterface &
+  ResourceInterface & {
+    id: number | string;
+    page?: number;
+    pageParams: PageResourceParams;
+  };
