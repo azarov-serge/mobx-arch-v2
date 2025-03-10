@@ -1,4 +1,4 @@
-import { CategoryCocktailInterface, CategoryCocktailResponse } from '../types';
+import { CategoryCocktailInterface, CategoryCocktailResponse } from './types';
 
 export class CategoryCocktail implements CategoryCocktailInterface {
   id: string = new Date().toISOString();

@@ -3,8 +3,8 @@ import { useSearchParams } from 'react-router';
 import { observer } from 'mobx-react';
 import { Spinner, TableRow } from '@admiral-ds/react-ui';
 
-import { useGetCocktails } from '../../../../share/hooks';
-import { LastRowWrapper } from '../../../../share/ui-kit';
+import { useGetCocktails } from '../../../../shared/hooks';
+import { LastRowWrapper } from '../../../../shared/ui-kit';
 import { useColumns } from './hooks/use-columns';
 import { Styled } from './styled';
 

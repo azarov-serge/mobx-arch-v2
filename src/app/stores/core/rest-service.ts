@@ -2,7 +2,7 @@ import { observable, makeAutoObservable, action } from 'mobx';
 
 import { RequestArgs, Statuses } from './types';
 import { Query, QueryError, QueryStatus } from './queries';
-import { delay, isAxiosResponse } from '../../../share';
+import { delay, isAxiosResponse } from '../../../shared';
 import axios, { AxiosResponse } from 'axios';
 import { axiosInstance } from '../instances';
 

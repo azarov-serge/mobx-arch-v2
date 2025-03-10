@@ -62,10 +62,6 @@ export class CocktailView extends View<CocktailService, CocktailKey> {
       fetchData: this.service.fetchCocktails,
     };
   };
-
-  public resetAll() {
-    this.service.rest.resetAll();
-  }
 }
 
 export const cocktailView = new CocktailView();

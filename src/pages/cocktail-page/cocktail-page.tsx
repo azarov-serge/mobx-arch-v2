@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { Link, useParams } from 'react-router';
 
 import { Styled } from './styled';
-import { useGetCocktail } from '../../share/hooks';
+import { useGetCocktail } from '../../shared/hooks';
 import { NotFoundPage } from '../not-found-page';
 
 export const CocktailPage: React.FC = observer(() => {
@@ -50,15 +50,7 @@ export const CocktailPage: React.FC = observer(() => {
 
           <div>
             <b>Ingredients: </b>
-            {data?.ingredients.length ? (
-              <ul>
-                {data.ingredients.map((ingredient) => (
-                  <li key={ingredient}>{ingredient}</li>
-                ))}
-              </ul>
-            ) : (
-              '-'
-            )}
+            {data?.ingredients.length ? data.ingredients.join(', ') : '-'}
           </div>
         </Styled.Info>
       </Styled.Wrapper>

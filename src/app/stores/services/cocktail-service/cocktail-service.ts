@@ -1,4 +1,6 @@
 import { makeObservable } from 'mobx';
+
+import { Cocktail } from '../../../../shared/models';
 import { FetchResource, Query, QueryStatus } from '../../core';
 import { cocktailHelper } from '../../helpers/cocktail-helper';
 
@@ -11,7 +13,6 @@ import {
   CocktailServiceType,
 } from './types';
 
-import { Cocktail } from './models';
 import { queries } from './constants';
 
 export class CocktailService extends FetchResource<
