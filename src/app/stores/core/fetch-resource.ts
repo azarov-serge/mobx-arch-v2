@@ -11,12 +11,14 @@ export class FetchResource<Types, Key extends string> {
   public rest: RestService<Types>;
   @observable.deep
   public queries: Record<Key, Query | PaginationQuery>;
+  private _queries: Record<Key, Query | PaginationQuery>;
 
   constructor(queries: Record<Key, Query | PaginationQuery>) {
     makeObservable(this);
 
     this.rest = new RestService();
     this.queries = queries;
+    this._queries = queries;
   }
 
   @computed
@@ -24,15 +26,15 @@ export class FetchResource<Types, Key extends string> {
     return this.rest.statuses;
   }
 
-  public getStatus = <T = null>(
+  public getStatus = <T>(
     key: string
   ): ReturnType<typeof this.rest.getStatus<T>> => {
     return this.rest.getStatus<T>(key);
   };
 
-  public getPaginationStatus<S = null>(
+  public getPaginationStatus<S>(
     keys: string[]
-  ): ReturnType<typeof this.rest.getStatus<S>> {
+  ): QueryStatus<PaginationResponse<S>> {
     const status = keys.reduce<unknown>((acc, key) => {
       let result = (
         acc as QueryStatus<PaginationResponse<unknown>>
@@ -76,10 +78,14 @@ export class FetchResource<Types, Key extends string> {
       return result;
     }, new QueryStatus<PaginationResponse<unknown>>());
 
-    return status as QueryStatus<S>;
+    return status as QueryStatus<PaginationResponse<S>>;
   }
 
   public setQuery = action((key: Key, query: Query | PaginationQuery): void => {
     this.queries[key] = query;
+  });
+
+  public resetQuery = action((key: Key): void => {
+    this.queries[key] = this._queries[key];
   });
 }

@@ -20,7 +20,7 @@ export class CategoryView extends View<CategoryService, CategoryKey> {
   > => {
     const query = this.service.queries.categories;
     const status = this.service.getStatus<CategoriesData>(query.key);
-    const helpers = this.createHelpers('categories', query);
+    const helpers = this.createHelpers('categories');
 
     return { ...status, ...helpers, fetchData: this.service.fetchCategories };
   };

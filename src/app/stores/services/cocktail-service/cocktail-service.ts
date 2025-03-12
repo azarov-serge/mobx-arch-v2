@@ -1,17 +1,18 @@
 import { makeObservable } from 'mobx';
 
-import { Cocktail } from '../../../../shared/models';
-import { FetchResource, Query, QueryStatus } from '../../core';
+import { CategoryCocktail, Cocktail } from '../../../../shared/models';
+import {
+  FetchResource,
+  PaginationQuery,
+  PaginationResponse,
+  Query,
+  QueryStatus,
+} from '../../core';
 import { cocktailHelper } from '../../helpers/cocktail-helper';
 
 import { BASE_URL } from '../../endpoints';
 
-import {
-  CategoryCocktails,
-  CocktailKey,
-  CocktailResponse,
-  CocktailServiceType,
-} from './types';
+import { CocktailKey, CocktailResponse, CocktailServiceType } from './types';
 
 import { queries } from './constants';
 
@@ -49,23 +50,14 @@ export class CocktailService extends FetchResource<
 
   public fetchCocktails = async (
     category: string
-  ): Promise<QueryStatus<CategoryCocktails>> => {
-    if (!category) {
-      return this.getPaginationStatus<CategoryCocktails>([]);
-    }
+  ): Promise<QueryStatus<PaginationResponse<CategoryCocktail>>> => {
+    const query = this.queries.cocktails.copyWith() as PaginationQuery;
 
-    if (!this.queries[category]) {
-      this.setQuery(
-        category,
-        this.queries.cocktails.copyWith({
-          params: { ...this.queries.cocktails.params, c: category },
-        })
-      );
-    }
+    query.setParams({ c: category });
 
-    const query = this.queries[category];
+    this.setQuery('cocktails', query);
 
-    return await this.rest.request<CategoryCocktails>({
+    return await this.rest.request<PaginationResponse<CategoryCocktail>>({
       query,
       fetch: cocktailHelper.fetchCocktails,
     });

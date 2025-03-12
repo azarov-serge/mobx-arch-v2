@@ -3,15 +3,17 @@ import { QueryInterface, QueryMethod, QueryParams } from './types';
 
 export abstract class AbstractQuery implements QueryInterface {
   public readonly id: string = '';
-  public readonly url: string = '';
+  public readonly baseUrl: string = '';
   public readonly method: QueryMethod = 'GET';
   public params: QueryParams = {};
+  public urlParam: string = '';
 
   constructor(data?: Partial<QueryInterface>) {
-    this.id = `${data?.id ?? this.id}`;
-    this.method = data?.method ?? this.method;
-    this.params = data?.params ?? this.params;
-    this.url = data?.url ?? this.url;
+    this.id = `${data?.id || this.id}`;
+    this.method = data?.method || this.method;
+    this.params = { ...(data?.params ?? this.params) };
+    this.baseUrl = data?.baseUrl || data?.url || this.baseUrl;
+    this.urlParam = data?.urlParam || this.urlParam;
   }
 
   /** Уникальный ключ ресурса */
@@ -21,11 +23,11 @@ export abstract class AbstractQuery implements QueryInterface {
 
   /**  Может использоваться для очистки состояния если, есть поиск типа search=*/
   get keyShort(): string {
-    return `[${this.method}]:${this.url}`;
+    return `[${this.method}]:${this.baseUrl}`;
   }
 
   /** URL для получения данных */
-  get requestUrl(): string {
+  get url(): string {
     return this.createUrl();
   }
 
@@ -39,7 +41,8 @@ export abstract class AbstractQuery implements QueryInterface {
 
   protected createUrl = (params?: QueryParams): string => {
     const query = AbstractQuery.createParams(params ?? this.params);
-    return `${this.url}${query ? `?${query}` : ''}`;
+
+    return `${this.baseUrl}${this.urlParam}${query ? `?${query}` : ''}`;
   };
 
   protected createKey = (url?: string, params?: QueryParams): string => {
@@ -65,24 +68,26 @@ export abstract class AbstractQuery implements QueryInterface {
    * @returns
    */
   static createParams(
-    query: Record<string, unknown>,
+    params: Record<string, unknown>,
     options?: StringifyOptions
   ): string {
-    if (JSON.stringify(query) === '{}') {
+    if (JSON.stringify(params) === '{}') {
       return '';
     }
 
     return qs.stringify(
-      Object.keys(query)
+      Object.keys(params)
+        // Убирать пустые параметры
+        .filter((key) => params[key] !== undefined && params[key] !== '')
         .sort((a, b) => a.localeCompare(b))
         .reduce<Record<string, unknown>>((acc, key) => {
-          acc[key] = Array.isArray(query[key])
+          acc[key] = Array.isArray(params[key])
             ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               //@ts-ignore
-              query[key].sort((a, b) =>
+              params[key].sort((a, b) =>
                 JSON.stringify(a).localeCompare(JSON.stringify(b))
               )
-            : query[key];
+            : params[key];
 
           return acc;
         }, {}),
