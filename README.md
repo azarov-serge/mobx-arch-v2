@@ -31,14 +31,14 @@
 
 ## Описание библиотеки
 Общая библиотека для WD проектов. Включает в себя:
-- `/src/lib/stores` - новое core для создания сервисов и вьюх
-    - `/src/lib/stores/core/rest-service.ts` - сервис позволяющий делать сетевые запрос и хранить статусы в локальном состоянии сервиса. Статус - это инстанс класса `/src/stores/core/queries/query-status.ts`. Хранит состояния:
+- `/src/app/stores` - новое core для создания сервисов и вьюх
+    - `/src/app/stores/core/rest-service.ts` - сервис позволяющий делать сетевые запрос и хранить статусы в локальном состоянии сервиса. Статус - это инстанс класса `/src/app/stores/core/queries/query-status.ts`. Хранит состояния:
         - `isFetching` - выполняется загрузка (`true`/`false`)
         - `isFetched` - загрузка выполнена (`true`/`false`)
         - `data` - полученные данные
-        - `error` - ошибка. Инстанс класса `/src/stores/core/queries/query-error.ts`
-    - `/src/stores/core/queries` - набор классов для работы с сетевыми запросами.
-      - `/src/stores/core/queries/query.ts` - класс для простых сетевых запросов. Содержит:
+        - `error` - ошибка. Инстанс класса `/src/app/stores/core/queries/query-error.ts`
+    - `/src/app/stores/core/queries` - набор классов для работы с сетевыми запросами.
+      - `/src/app/stores/core/queries/query.ts` - класс для простых сетевых запросов. Содержит:
         - `key` - уникальный ключ запроса.
         - `id` - уникальный id для POST, PATCH, PUT, DELETE запросов. будет использоваться для формирования уникально ключа запроса.
         - `url` - URL для запроса с search параметрами
@@ -46,7 +46,7 @@
         - `baseUrl` - базовый `url` без `search params` и `url param`
         - `method` - `GET` | `POST` | `PUT` | `PATCH` | `DELETE`
         - `params` -  `search params` (`{ ключ: значение }`)
-      - `/src/stores/core/queries/pagination-query.ts` - класс для сетевых запросов с пагинацией. Содержит:
+      - `/src/app/stores/core/queries/pagination-query.ts` - класс для сетевых запросов с пагинацией. Содержит:
         - `key` - уникальный ключ запроса.
         - `keys` - массив уникальных ключей запроса.
         - `id` - уникальный id для POST, PATCH, PUT, DELETE запросов. будет использоваться для формирования уникально ключа запроса.
