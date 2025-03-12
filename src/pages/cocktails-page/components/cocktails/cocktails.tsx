@@ -12,7 +12,7 @@ export const Cocktails: React.FC = observer(() => {
   const [searchParams] = useSearchParams();
   const category = searchParams.get('category') ?? '';
   const { isFetching, isFetched, fetchData, nextPage, data, resetQuery } =
-    useGetCocktails(category);
+    useGetCocktails();
   const columns = useColumns();
   const ref = React.useRef<HTMLDivElement>(null);
 

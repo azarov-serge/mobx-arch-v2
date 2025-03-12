@@ -17,7 +17,7 @@ export const CocktailPage: React.FC = observer(() => {
     }
 
     if (!isFetching && !isFetched) {
-      fetchData(id);
+      fetchData();
     }
   }, [id, isFetching, isFetched]);
 

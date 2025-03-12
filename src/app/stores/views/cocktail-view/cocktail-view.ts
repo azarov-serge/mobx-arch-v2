@@ -1,17 +1,13 @@
 import { makeObservable } from 'mobx';
 
-import {
-  CategoryCocktails,
-  CocktailKey,
-  CocktailService,
-  cocktailService,
-} from '../../services';
+import { CocktailKey, CocktailService, cocktailService } from '../../services';
 import {
   PaginationQuery,
   PaginationQueryData,
   QueryData,
   View,
 } from '../../core';
+import { CategoryCocktail } from '../../../../shared/models';
 
 type CocktailData = Awaited<
   ReturnType<typeof cocktailService.fetchCocktail>
@@ -31,7 +27,7 @@ export class CocktailView extends View<CocktailService, CocktailKey> {
     });
 
     const status = this.service.getStatus<CocktailData>(query.key);
-    const helpers = this.createHelpers('categories', query);
+    const helpers = this.createHelpers('cocktail');
 
     return {
       ...status,
@@ -40,21 +36,17 @@ export class CocktailView extends View<CocktailService, CocktailKey> {
     };
   };
 
-  public createCocktailsData = (
-    category: string
-  ): PaginationQueryData<
-    CategoryCocktails,
+  public createCocktailsData = (): PaginationQueryData<
+    CategoryCocktail,
     typeof this.service.fetchCocktails
   > => {
-    const query = (this.service.queries[category] ??
-      this.service.queries.cocktails.copyWith({
-        params: { ...this.service.queries.cocktails.params, c: category },
-      })) as PaginationQuery;
+    const query = this.service.queries.cocktails as unknown as PaginationQuery;
 
-    const status = this.service.getPaginationStatus<CategoryCocktails>(
+    const status = this.service.getPaginationStatus<CategoryCocktail>(
       query.keys
     );
-    const helpers = this.createPaginationHelpers(category, query);
+
+    const helpers = this.createPaginationHelpers('cocktails');
 
     return {
       ...status,

@@ -7,7 +7,8 @@ import { AbstractQuery } from './abstract-query';
 
 export class PaginationQuery extends AbstractQuery {
   public page: number = 1;
-  public readonly pageParams: PageQueryParams = {};
+  public pageParams: PageQueryParams = {};
+  public pageLimit: PageQueryParams = {};
 
   constructor(data?: Partial<PaginationQueryInterface>) {
     super(data);
@@ -18,31 +19,48 @@ export class PaginationQuery extends AbstractQuery {
       ...this.pageParams,
       ...(data?.pageParams ?? {}),
     };
+
+    this.pageLimit = {
+      ...this.pageLimit,
+      ...(data?.pageLimit ?? {}),
+    };
+
+    if (data?.limit) {
+      this.pageLimit[this.page] = data.limit;
+    }
+
+    this.params = { ...(data?.params ?? this.params) };
   }
 
-  get requestUrl(): string {
+  get url(): string {
     const params = this.pageParams[this.page] ?? {};
+    const limit = this.getLimit();
 
-    return this.createUrl({ ...this.params, ...params });
+    return this.createUrl({ ...this.params, ...params, ...limit });
   }
 
-  get requestUrls(): string[] {
+  get urls(): string[] {
     return Array.from({ length: this.page }).map((_, index) => {
       const page = index + 1;
       const params = this.pageParams[page] ?? {};
+      const limit = this.getLimit(page);
 
-      return this.createUrl({ ...this.params, ...params });
+      return this.createUrl({ ...this.params, ...params, ...limit });
     });
   }
 
   /** Уникальные ключи ресурса */
   get key(): string {
-    return this.createKey(this.requestUrl);
+    return this.keys[this.page - 1];
   }
 
   /** Уникальные ключи ресурса */
   get keys(): string[] {
-    return this.requestUrls.map((url) => this.createKey(url));
+    return this.urls.map((url) => this.createKey(url));
+  }
+
+  get limit(): QueryParams {
+    return this.getLimit();
   }
 
   public copyWith = (
@@ -53,7 +71,6 @@ export class PaginationQuery extends AbstractQuery {
 
   public nextPage = (params: QueryParams): boolean => {
     const currentParams = PaginationQuery.createParams({
-      ...this.params,
       ...(this.pageParams[this.page] ?? {}),
     });
 
@@ -62,6 +79,8 @@ export class PaginationQuery extends AbstractQuery {
     if (currentParams === newParams) {
       return false;
     }
+
+    this.pageLimit[this.page + 1] = this.limit;
 
     this.page = this.page + 1;
 
@@ -77,6 +96,25 @@ export class PaginationQuery extends AbstractQuery {
   ): T => {
     const params = this.pageParams[page ?? this.page] ?? {};
     return (params[key] ?? defaultValue) as T;
+  };
+
+  public setParams = (params: QueryParams): void => {
+    if (
+      PaginationQuery.createParams(params) !==
+      PaginationQuery.createParams(this.params)
+    ) {
+      this.page = 1;
+      this.pageParams = {};
+      this.pageLimit = {
+        1: { ...this.getLimit(1) },
+      };
+    }
+
+    this.params = { ...params };
+  };
+
+  private getLimit = (page?: number): QueryParams => {
+    return this.pageLimit[page ?? this.page] ?? {};
   };
 
   static isInstance(value: unknown): value is PaginationQuery {

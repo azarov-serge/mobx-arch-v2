@@ -1,6 +1,7 @@
 import {
   PaginationQuery,
   PaginationQueryInterface,
+  PaginationResponse,
   Query,
   QueryInterface,
   QueryParams,
@@ -45,4 +46,4 @@ export type QueryData<T, Fn> = QueryHelpers &
   QueryStatus<T> & { fetchData: Fn };
 
 export type PaginationQueryData<T, Fn> = PaginationQueryHelpers &
-  QueryStatus<T> & { fetchData: Fn };
+  QueryStatus<PaginationResponse<T>> & { fetchData: Fn };

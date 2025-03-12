@@ -10,6 +10,6 @@ export const queries: Record<CocktailKey, Query | PaginationQuery> = {
   }),
   cocktails: new PaginationQuery({
     url: `${BASE_URL}/filter.php`,
-    params: { limit: COCKTAILS_PAGE_LIMIT },
+    limit: { limit: COCKTAILS_PAGE_LIMIT },
   }),
 };

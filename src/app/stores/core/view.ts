@@ -3,7 +3,6 @@ import { QueryHelpers, PaginationQueryHelpers } from './types';
 import {
   PaginationQuery,
   PaginationQueryInterface,
-  Query,
   QueryInterface,
   QueryParams,
 } from './queries';
@@ -26,22 +25,36 @@ export class View<Service, Key extends string> {
     return this._service as unknown as Service;
   }
 
+  @computed
+  get statuses() {
+    return this._service.rest.statuses;
+  }
+
+  @computed
+  get queries() {
+    return this._service.queries;
+  }
+
   public resetAll = (): void => {
     this._service.rest.resetAll();
   };
 
-  protected createHelpers(key: Key, query: Query): QueryHelpers {
+  protected createHelpers(key: Key): QueryHelpers {
     if (!this.helpers[key]) {
       const clearError = (args?: QueryInterface): void => {
+        const query = this.queries[key];
         this._service.rest.clearError(query.copyWith(args).key);
       };
 
       const reset = (args?: QueryInterface): void => {
+        const query = this.queries[key];
         this._service.rest.reset(query.copyWith(args).key);
       };
 
       const resetQuery = (): void => {
+        const query = this.queries[key];
         this._service.rest.reset(query.keyShort);
+        this._service.resetQuery(key);
       };
 
       this.setHelpers(key, {
@@ -54,28 +67,31 @@ export class View<Service, Key extends string> {
     return this.helpers[key] as QueryHelpers;
   }
 
-  protected createPaginationHelpers(
-    key: Key,
-    query: PaginationQuery
-  ): PaginationQueryHelpers {
+  protected createPaginationHelpers(key: Key): PaginationQueryHelpers {
     if (!this.paginationHelpers[key]) {
       const nextPage = (params: QueryParams) => {
+        const query = this._service.queries[key] as PaginationQuery;
         const result = query.nextPage(params);
+
         this._service.setQuery(key, query.copyWith());
 
         return result;
       };
 
       const clearError = (args?: PaginationQueryInterface): void => {
+        const query = this._service.queries[key] as PaginationQuery;
         this._service.rest.clearError(query.copyWith(args).key);
       };
 
       const reset = (args?: PaginationQueryInterface): void => {
+        const query = this._service.queries[key] as PaginationQuery;
         this._service.rest.reset(query.copyWith(args).key);
       };
 
       const resetQuery = (): void => {
+        const query = this._service.queries[key] as PaginationQuery;
         this._service.rest.resetQuery(query.keyShort);
+        this._service.resetQuery(key);
       };
 
       this.setPaginationHelpers(key, {
@@ -89,6 +105,28 @@ export class View<Service, Key extends string> {
     return this.paginationHelpers[key] as PaginationQueryHelpers;
   }
 
+  protected createQueryPaginationHelpers(
+    query: PaginationQuery
+  ): PaginationQueryHelpers {
+    const clearError = (args?: PaginationQueryInterface): void => {
+      this._service.rest.clearError(query.copyWith(args).key);
+    };
+
+    const reset = (args?: PaginationQueryInterface): void => {
+      this._service.rest.reset(query.copyWith(args).key);
+    };
+
+    const resetQuery = (): void => {
+      this._service.rest.resetQuery(query.keyShort);
+    };
+
+    return {
+      clearError,
+      reset,
+      resetQuery,
+    } as PaginationQueryHelpers;
+  }
+
   private setHelpers = action((key: Key, helpers: QueryHelpers): void => {
     this.helpers[key] = helpers;
   });
@@ -98,9 +136,4 @@ export class View<Service, Key extends string> {
       this.paginationHelpers[key] = helpers;
     }
   );
-
-  @computed
-  get statuses() {
-    return this._service.rest.statuses;
-  }
 }

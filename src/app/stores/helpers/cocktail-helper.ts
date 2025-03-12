@@ -1,8 +1,7 @@
 import qs from 'query-string';
 import { axiosInstance } from '../instances';
-import { CategoryCocktails } from '../services';
 import { RequestArgs } from '../core/types';
-import { PaginationQuery, QueryError } from '../core';
+import { PaginationQuery, PaginationResponse, QueryError } from '../core';
 import { delay } from '../../../shared';
 import { CategoryCocktailResponse } from '../../../shared/models/types';
 import { CategoryCocktail } from '../../../shared/models';
@@ -11,24 +10,25 @@ export class CocktailHelper {
   cache: Record<string, any> = {};
 
   fetchCocktails = async (
-    args?: Partial<RequestArgs<CategoryCocktails>>
-  ): Promise<CategoryCocktails> => {
+    args?: Partial<RequestArgs<PaginationResponse<CategoryCocktail>>>
+  ): Promise<PaginationResponse<CategoryCocktail>> => {
     const { query } = args ?? {};
     if (!query) {
       throw new QueryError({ status: 422, message: 'Query not found' });
     }
     const paginationQuery = query as PaginationQuery;
-    const url = paginationQuery.url;
     const category = query.getParamsValue<string>('c', '');
-    const limit = paginationQuery.getParamsValue<number>('limit');
+    const limit = paginationQuery.limit['limit'] as number;
 
-    let cache = this.cache[category] as CategoryCocktails;
+    let cache = this.cache[category] as PaginationResponse<CategoryCocktail>;
 
     if (!cache) {
       const response = await axiosInstance<{
         drinks: CategoryCocktailResponse[];
       }>({
-        url: `${url}?${qs.stringify({ c: category })}`,
+        url: `${paginationQuery.baseUrl}?${qs.stringify(
+          paginationQuery.params
+        )}`,
         method: query.method,
       });
 
@@ -43,7 +43,7 @@ export class CocktailHelper {
       await delay(1_000);
     }
 
-    cache = this.cache[category] as CategoryCocktails;
+    cache = this.cache[category] as PaginationResponse<CategoryCocktail>;
 
     const prevLastId = paginationQuery.getPaginationParamsValue<string>(
       'last-id',

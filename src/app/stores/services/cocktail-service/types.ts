@@ -1,8 +1,6 @@
 import { CategoryCocktail, Cocktail } from '../../../../shared/models';
 import { PaginationResponse } from '../../core';
 
-export type CategoryCocktails = PaginationResponse<CategoryCocktail>;
-
 export type CocktailIngredientsResponse = Record<
   `strIngredient${
     | 1
@@ -33,6 +31,8 @@ export type CocktailResponse = {
   strInstructions: string;
 } & CocktailIngredientsResponse;
 
-export type CocktailKey = 'cocktail' | 'cocktails' | string;
+export type CocktailKey = 'cocktail' | 'cocktails';
 
-export type CocktailServiceType = Cocktail;
+export type CocktailServiceType =
+  | Cocktail
+  | PaginationResponse<CategoryCocktail>;

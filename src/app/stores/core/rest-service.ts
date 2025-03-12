@@ -1,10 +1,11 @@
 import { observable, makeAutoObservable, action } from 'mobx';
-
-import { RequestArgs, Statuses } from './types';
-import { Query, QueryError, QueryStatus } from './queries';
-import { delay, isAxiosResponse } from '../../../shared';
 import axios, { AxiosResponse } from 'axios';
+
+import type { RequestArgs, Statuses } from './types';
+import { QueryError, QueryStatus } from './queries';
+
 import { axiosInstance } from '../instances';
+import { delay, isAxiosResponse } from '../../../shared/utils';
 
 const DEFAULT_DELAY_MS = 300;
 
@@ -14,6 +15,13 @@ export class RestService<T> {
 
   constructor() {
     makeAutoObservable(this);
+
+    this.getStatus = this.getStatus.bind(this);
+    this.setStatus = this.setStatus.bind(this);
+    this.request = this.request.bind(this);
+    this.reset = this.reset.bind(this);
+    this.resetAll = this.resetAll.bind(this);
+    this.clearError = this.clearError.bind(this);
   }
 
   public getStatus = <T>(key: string): QueryStatus<T> => {
@@ -26,11 +34,11 @@ export class RestService<T> {
     return status as unknown as QueryStatus<T>;
   };
 
-  public setStatus = action((key: string, status: QueryStatus<T>): void => {
-    this.statuses[key] = status;
+  public setStatus = action(<R>(key: string, status: QueryStatus<R>): void => {
+    this.statuses[key] = status as unknown as QueryStatus<T>;
   });
 
-  public reset(keys: string | string[]): void {
+  public reset = (keys: string | string[]): void => {
     if (Array.isArray(keys)) {
       keys.forEach((key) => {
         delete this.statuses[key];
@@ -40,7 +48,7 @@ export class RestService<T> {
     }
 
     delete this.statuses[keys];
-  }
+  };
 
   public resetQuery = (key: string): void => {
     Object.keys(this.statuses).forEach((statusKey) => {
@@ -75,17 +83,7 @@ export class RestService<T> {
   public request = async <R>(args: RequestArgs<R>): Promise<QueryStatus<R>> => {
     const { query, data, fetch, adaptResponse, mock } = args;
 
-    let params = '';
-
-    if (params) {
-      params = `?${
-        typeof args.params === 'string'
-          ? params
-          : Query.createParams(args.params ?? {})
-      }`;
-    }
-
-    let status = this.getStatus<R>(query.key);
+    let status = this.getStatus<R>(query.key).copyWith({ error: null });
 
     if (status.isFetching && query.method === 'GET') {
       return status as unknown as QueryStatus<R>;
@@ -118,7 +116,7 @@ export class RestService<T> {
       const request: Promise<R | AxiosResponse<R>> = fetch
         ? fetch(args)
         : axiosInstance({
-            url: query.requestUrl,
+            url: query.url,
             method: query.method,
             headers,
             data,
@@ -126,7 +124,7 @@ export class RestService<T> {
 
       const response = await request;
 
-      const responseData = isAxiosResponse(response) ? response.data : response;
+      const responseData = this.getResponse<R>(response);
 
       status = status.copyWith({
         data: adaptResponse ? adaptResponse(responseData) : responseData,
@@ -152,11 +150,13 @@ export class RestService<T> {
             message: error.message,
           }),
         });
+      } else if (error instanceof QueryError) {
+        status = status.copyWith({ error });
       } else {
         status = status.copyWith({
           error: new QueryError({
             status: 500,
-            message: JSON.stringify(error),
+            message: `${error}`,
           }),
         });
       }
@@ -170,5 +170,11 @@ export class RestService<T> {
 
       return status;
     }
+  };
+
+  private getResponse = <R>(value: unknown): R => {
+    const response = isAxiosResponse(value) ? value.data : value;
+
+    return response as R;
   };
 }
